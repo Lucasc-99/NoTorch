@@ -18,14 +18,20 @@ def _conv(in_matrix, kernel, stride):
     """
     assert (len(in_matrix) * len(kernel) * stride is not 0)  # make sure there are no zero inputs
     assert (len(kernel) == len(kernel[0]))  # kernel must be square
+    assert(len(kernel) % 2 != 0)
     assert (len(in_matrix) == len(in_matrix[0]))
-    bound = len(in_matrix) - len(kernel) + 1
-    out_matrix = np.empty(shape=(bound, bound))
+
+    k = len(kernel)
+    height, width = len(in_matrix), len(in_matrix[0])
+    out_width = width - k + 1
+    out_height = height - k + 1
+
+    out_matrix = np.empty(shape=(out_height, out_width))
     out_matrix.fill(0)
-    for i in range(0, len(in_matrix) - len(kernel) + 1):
-        for j in range(0, len(in_matrix[0]) - len(kernel) + 1):
-            for x in range(0, len(kernel)):
-                for y in range(0, len(kernel)):
+    for i in range(0, out_height):
+        for j in range(0, out_width):
+            for x in range(0, k):
+                for y in range(0, k):
                     out_matrix[i][j] += kernel[x][y] * in_matrix[x + i][y + j]
             out_matrix[i][j] *= (out_matrix[i][j] > 0)  # relu
 
@@ -49,9 +55,9 @@ test_in_mat_5x5 = [[3, 2, 3, 4, 5],
                    [9, 1, 7, 8, 3],
                    [1, 2, 3, 4, 5]]
 
-test_kernel = [[1, 0, 0],
+test_kernel = [[0, 0, 0],
                [0, 1, 0],
-               [0, 0, 1]]
+               [0, 0, 0]]
 
 test_out_1 = _conv(test_in_mat_6x6, test_kernel, 1)
 test_out_2 = _conv(test_in_mat_5x5, test_kernel, 1)
