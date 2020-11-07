@@ -24,15 +24,13 @@ def _conv(in_matrix, kernel, stride):
     out_matrix.fill(0)
     i = 0
     j = 0
-    while i < len(in_matrix) - len(kernel) + 1:
-        while j < len(in_matrix[0]) - len(kernel) + 1:
+    for i in range(0, len(in_matrix) - len(kernel) + 1):
+        for j in range(0, len(in_matrix[0]) - len(kernel) + 1):
             for x in range(0, len(kernel)):
                 for y in range(0, len(kernel)):
                     out_matrix[i][j] += kernel[x][y] * in_matrix[x + i][y + j]
             out_matrix[i][j] *= (out_matrix[i][j] > 0)  # relu
-            j += stride
-        j = 0
-        i += stride
+
     return out_matrix
 
 
