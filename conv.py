@@ -22,8 +22,6 @@ def _conv(in_matrix, kernel, stride):
     bound = len(in_matrix) - len(kernel) + 1
     out_matrix = np.empty(shape=(bound, bound))
     out_matrix.fill(0)
-    i = 0
-    j = 0
     for i in range(0, len(in_matrix) - len(kernel) + 1):
         for j in range(0, len(in_matrix[0]) - len(kernel) + 1):
             for x in range(0, len(kernel)):
