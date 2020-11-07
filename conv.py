@@ -8,26 +8,29 @@ STRIDE = 1
 PADDING = 0
 
 
-def _conv(in_matrix, kernel, stride):
+def _conv(in_matrix, kernel, stride, padding):
     """
-    VERY inefficient code for calculating output of convolutional layer
+    Calculate the convolution of input matrix with kernel
     :param in_matrix: a matrix representing input later
     :param kernel: matrix representing kernel values
     :param stride: step size for kernel
     :return: a matrix of output values, linearized with relu
     """
-    assert (len(in_matrix) * len(kernel) * stride is not 0)  # make sure there are no zero inputs
-    assert (len(kernel) == len(kernel[0]))  # kernel must be square
-    assert(len(kernel) % 2 != 0)
-    assert (len(in_matrix) == len(in_matrix[0]))
-
     k = len(kernel)
     height, width = len(in_matrix), len(in_matrix[0])
     out_width = width - k + 1
     out_height = height - k + 1
+    pad_width = out_width + 2*padding
+    pad_height = out_height + 2*padding
 
-    out_matrix = np.empty(shape=(out_height, out_width))
-    out_matrix.fill(0)
+    assert (height * width * k * stride is not 0)  # make sure there are no zero inputs
+    assert (k == len(kernel[0]))  # kernel must be square
+    assert(len(kernel) % 2 != 0)
+    assert (len(in_matrix) == len(in_matrix[0]))
+
+    out_matrix = np.zeros(shape=(out_height, out_width))
+    padded_matrix = np.zeros(shape=(pad_height, pad_width))
+
     for i in range(0, out_height):
         for j in range(0, out_width):
             for x in range(0, k):
