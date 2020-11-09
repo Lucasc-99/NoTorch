@@ -1,44 +1,96 @@
 from micrograd.engine import Value
 from micrograd.nn import Module, Neuron, Layer, MLP
 import numpy as np
+import typing
 import random
 
-KERNEL_SIZE = 3
-STRIDE = 1
-PADDING = 0
 
-
-def _conv(in_matrix, kernel, stride, padding):
+def _conv(in_matrix, kernel, stride_vertical, stride_horizontal, padding=0):
     """
-    Calculate the convolution of input matrix with kernel
+    Calculate the convolution of input matrix with kernel. Outputs
     :param in_matrix: a matrix representing input later
     :param kernel: matrix representing kernel values
-    :param stride: step size for kernel
-    :return: a matrix of output values, linearized with relu
+    :param stride_vertical: vertical kernel stride
+    :param stride_horizontal: horizontal kernel stride
+    :param padding: padding for input matrix
+    :return: a matrix of output values
     """
     k = len(kernel)
     height, width = len(in_matrix), len(in_matrix[0])
-    out_width = width - k + 1
-    out_height = height - k + 1
-    pad_width = out_width + 2*padding
-    pad_height = out_height + 2*padding
 
-    assert (height * width * k * stride is not 0)  # make sure there are no zero inputs
-    assert (k == len(kernel[0]))  # kernel must be square
-    assert(len(kernel) % 2 != 0)
+    pad_width = padding + width + padding
+    pad_height = padding + height + padding
+
+    assert (height * width * k is not 0)  # make sure there are no zero inputs
+    assert (len(kernel) % 2 != 0)
     assert (len(in_matrix) == len(in_matrix[0]))
 
-    out_matrix = np.zeros(shape=(out_height, out_width))
-    padded_matrix = np.zeros(shape=(pad_height, pad_width))
+    if padding:
+        pad_matrix = np.empty(shape=(pad_height, pad_width))
+        for i in range(pad_height):
+            for j in range(pad_width):
+                if not (i < padding or i >= pad_height - padding or j < padding or j >= pad_width - padding):
+                    pad_matrix[i][j] = in_matrix[i - padding][j - padding]
+                else:
+                    pad_matrix[i][j] = 0
+    else:
+        pad_matrix = in_matrix
 
-    for i in range(0, out_height):
-        for j in range(0, out_width):
-            for x in range(0, k):
-                for y in range(0, k):
-                    out_matrix[i][j] += kernel[x][y] * in_matrix[x + i][y + j]
-            out_matrix[i][j] *= (out_matrix[i][j] > 0)  # relu
+    # find patches
+    patches = [
+        [pad_matrix[r: r + k, c: c + k]
+         for c in range(0, pad_width - k + 1, stride_horizontal)]
+        for r in range(0, pad_height - k + 1, stride_vertical)]
 
-    return out_matrix
+    # calculate convolution
+    return np.array([[np.sum(np.multiply(patch_r, kernel)) for patch_r in patch] for patch in patches])
+
+
+# Does it matter between random.gauss and random.uniform?
+def _build_kernel(k, d):
+    """
+    Build a kernel with random values
+    :param k: size
+    :param d: depth
+    :return:
+    """
+    return np.array([
+        [
+            [Value(np.random.uniform(0, 1)) for _ in range(k)]
+            for _ in range(k)]
+        for _ in range(d)])
+
+
+class Conv2D(Module):
+    def __init__(self, nin, nout, kernel_size, stride, relu=False, padding=0, **kwargs):
+        self.nin = nin
+        self.nout = nout
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.relu = relu
+        self.padding = padding
+        self.kernels = [_build_kernel(kernel_size, nout) for _ in range(nout)]
+
+    def __call__(self, x):  # return a 3 - dim array with output image of convolution for each kernel
+        out = np.dstack(
+            [_conv(x, kernel=kernel, padding=self.padding, stride=self.stride)
+             for kernel in self.kernels])
+        if self.relu:
+            return [
+                [
+                    [i.relu() for i in row]
+                    for row in channel]
+                for channel in out]
+        return out
+
+    def __parameters__(self):
+        parameters = []
+        for kernel in self.kernels:
+            parameters.append(kernel)
+        return parameters
+
+    def __repr__(self):
+        return f"Convolutional Layer with  [{len(self.kernels)}] kernels"
 
 
 #
@@ -47,41 +99,24 @@ def _conv(in_matrix, kernel, stride, padding):
 
 
 test_in_mat_6x6 = [[3, 2, 3, 4, 5, 15],
-                   [4, 7, 5, 3, 4, 20],
-                   [5, 2, 5, 7, 7, 1],
+                   [4, 7, -5, 3, 4, -20],
+                   [5, -2, -5, 7, -7, 1],
                    [9, 1, 7, 8, 3, 4],
-                   [1, 2, 3, 4, 5, 6],
-                   [4, 7, 5, 3, 4, 20]]
+                   [1, 2, -3, 4, -5, 6],
+                   [4, 7, -5, 3, 4, 20]]
 test_in_mat_5x5 = [[3, 2, 3, 4, 5],
                    [4, 7, 5, 3, 4],
                    [5, 2, 5, 7, 7],
                    [9, 1, 7, 8, 3],
                    [1, 2, 3, 4, 5]]
 
+# test_in_mat_5x5 = np.array([[Value(i) for i in row] for row in test_in_mat_5x5])
+
 test_kernel = [[0, 0, 0],
                [0, 1, 0],
                [0, 0, 0]]
-
-test_out_1 = _conv(test_in_mat_6x6, test_kernel, 1)
-test_out_2 = _conv(test_in_mat_5x5, test_kernel, 1)
+test_kernel_1 = _build_kernel(3, 1)
+print(test_kernel_1)
+test_out_1 = _conv(test_in_mat_5x5, test_kernel, stride_vertical=1, stride_horizontal=1, padding=1)
+# test_out_2 = _conv(test_in_mat_5x5, test_kernel, 1)
 print(test_out_1)
-print(test_out_2)
-
-
-class Conv2D(Module):
-    """
-        Each neuron in this layer maps to size_kernel ^ 2 other neurons
-        There should be overlap on these neurons?
-        How do I connect this to an input layer????
-    """
-
-    def __init__(self, nin, nout, kernel, **kwargs):
-        self.kernel = kernel
-        self.neurons = [Neuron(KERNEL_SIZE ** 2, **kwargs) for _ in range(nout)]
-
-    def __call__(self, x):
-        out = [n(x) for n in self.neurons]
-        return out[0] if len(out) == 1 else out
-
-# class ConvNetwork(MLP):
-#   def __init__(self, nin, conv_layers, nout):
