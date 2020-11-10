@@ -106,35 +106,37 @@ y = float(3)  # other
 
 x = y ** x
 
-z = x.sigmoid()
 
+z = x.sigmoid()
+w = ValueExt(2).sigmoid()
 print("rpow 2**3 == x == ", x)
 print("sigmoid(x) == ", z)
+print("sigmoid(2) == ", w)
 
 #
 # Test code for _conv
 #
 
 
-test_in_mat_6x6 = [[3, 2, 3, 4, 5, 15],
-                   [4, 7, -5, 3, 4, -20],
-                   [5, -2, -5, 7, -7, 1],
-                   [9, 1, 7, 8, 3, 4],
-                   [1, 2, -3, 4, -5, 6],
-                   [4, 7, -5, 3, 4, 20]]
-test_in_mat_5x5 = [[3, 2, 3, 4, 5],
-                   [4, 7, 5, 3, 4],
-                   [5, 2, 5, 7, 7],
-                   [9, 1, 7, 8, 3],
-                   [1, 2, 3, 4, 5]]
+# test_in_mat_6x6 = [[3, 2, 3, 4, 5, 15],
+#                  [4, 7, -5, 3, 4, -20],
+#                 [5, -2, -5, 7, -7, 1],
+#                [9, 1, 7, 8, 3, 4],
+#               [1, 2, -3, 4, -5, 6],
+#              [4, 7, -5, 3, 4, 20]]
+# test_in_mat_5x5 = [[3, 2, 3, 4, 5],
+#                  [4, 7, 5, 3, 4],
+#                 [5, 2, 5, 7, 7],
+#                [9, 1, 7, 8, 3],
+#               [1, 2, 3, 4, 5]]
 
 # test_in_mat_5x5 = np.array([[Value(i) for i in row] for row in test_in_mat_5x5])
 
-test_kernel = [[0, 0, 0],
-               [0, 1, 0],
-               [0, 0, 0]]
-test_kernel_1 = _build_random_kernel(3, 1)
-print(test_kernel_1)
-test_out_1 = _conv(test_in_mat_5x5, test_kernel, stride_vertical=1, stride_horizontal=1, padding=1)
+# test_kernel = [[0, 0, 0],
+#             [0, 1, 0],
+#            [0, 0, 0]]
+# test_kernel_1 = _build_random_kernel(3, 1)
+# print(test_kernel_1)
+# test_out_1 = _conv(test_in_mat_5x5, test_kernel, stride_vertical=1, stride_horizontal=1, padding=1)
 # test_out_2 = _conv(test_in_mat_5x5, test_kernel, 1)
-print(test_out_1)
+# print(test_out_1)
