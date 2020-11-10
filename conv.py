@@ -103,12 +103,12 @@ class Conv2D(Module):
 
 x = ValueExt(2)  # self
 y = float(3)  # other
-
 x = y ** x
-
-
 z = x.sigmoid()
 w = ValueExt(2).sigmoid()
+
+a = ValueExt(-20).relu()
+print(type(a))
 print("rpow 2**3 == x == ", x)
 print("sigmoid(x) == ", z)
 print("sigmoid(2) == ", w)

@@ -2,7 +2,10 @@ from micrograd.engine import Value
 
 
 class ValueExt(Value):
-
+    """
+        Extension class for micrograd.engine.Value
+        mul, add, pow, relu methods copied directly from Value class
+    """
     def __init__(self, data, _children=(), _op=''):
         super().__init__(data, _children=(), _op='')
         self.e = 2.71828182845904523536028747135266249775724709369995
@@ -45,6 +48,15 @@ class ValueExt(Value):
 
         def _backward():
             self.grad += (other * self.data**(other-1)) * out.grad
+        out._backward = _backward
+
+        return out
+
+    def relu(self):
+        out = ValueExt(0 if self.data < 0 else self.data, (self,), 'ReLU')
+
+        def _backward():
+            self.grad += (out.data > 0) * out.grad
         out._backward = _backward
 
         return out
