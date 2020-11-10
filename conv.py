@@ -125,7 +125,7 @@ class ConvNet(Module):
         return x
 
     def parameters(self):
-        return [layer.parameters for layer in self.layer_list]
+        return [layer.parameters() for layer in self.layer_list]
 
     def __repr__(self):
         return f"Convolutional Network with {self.nin} inputs and {self.size} filters"
