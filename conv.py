@@ -95,15 +95,21 @@ class Conv2D(Module):
         return f"Convolutional Layer with  [{len(self.kernels)}] kernels"
 
 
+# class ConvNet(Module):
+
 #
 # Test code for rpow and sigmoid
 #
+
 x = ValueExt(2)  # self
 y = float(3)  # other
-w = x**y
+
+x = y ** x
+
 z = x.sigmoid()
-print("rpow 2**3 == ", w)
-print("sigmoid(2) == ", z)
+
+print("rpow 2**3 == x == ", x)
+print("sigmoid(x) == ", z)
 
 #
 # Test code for _conv
