@@ -1,5 +1,5 @@
 from engine_extension import ValueExt
-from micrograd.nn import Module
+from micrograd.nn import Module, MLP
 import numpy as np
 import random
 
@@ -61,31 +61,36 @@ def _build_random_kernel(k, d):
 
 
 class Conv2D(Module):
-    def __init__(self, nin, nout, kernel_size, stride: (int, int), relu=False, padding=0, **kwargs):
+    def __init__(self, nin, nout, kernel_size, stride_v=1, stride_h=1, padding=0, activation=None,):
         self.nin = nin
         self.nout = nout
-        self.kernel_size = kernel_size
-        self.stride_vert = stride[0]
-        self.stride_horiz = stride[1]
-        self.relu = relu
+        self.stride_vert = stride_v
+        self.stride_horiz = stride_h
+        self.activation = activation
         self.padding = padding
         self.kernels = [_build_random_kernel(kernel_size, nout) for _ in range(nout)]
+        self.activation_fun = None
+        if activation:
+            if activation == 'relu':
+                self.activation_fun = ValueExt.relu
+            elif activation == 'sigmoid':
+                self.activation_fun = ValueExt.sigmoid
 
     def __call__(self, x):  # return a 3 - dim array with output image of convolution for each kernel
         out = np.dstack(
-            [_conv(x, kernel, stride_vertical=self.stride_vert,
-                   stride_horizontal=self.stride_horiz,
-                   padding=self.padding)
+            [_conv(x, kernel, self.stride_vert, self.stride_horiz, self.padding)
              for kernel in self.kernels])
-        if self.relu:
-            return [
+
+        if self.activation_fun:
+            out = [
                 [
-                    [i.relu() for i in row]
+                    [i.self.activation_fun() for i in row]
                     for row in channel]
                 for channel in out]
+
         return out
 
-    def __parameters__(self):
+    def parameters(self):
         parameters = []
         for kernel in self.kernels:
             parameters.append(kernel)
@@ -95,13 +100,47 @@ class Conv2D(Module):
         return f"Convolutional Layer with  [{len(self.kernels)}] kernels"
 
 
-# class ConvNet(Module):
+class ConvNet(Module):
+    def __init__(self, nin, filters, kernel_sizes=None, padding_sizes=None, activation='None'):
+        self.nin = nin
+        self.filters = filters  # number of layers in the network
+        self.size = len(filters)
+        self.layer_list = []
+        self.activation = activation
+        self.kernel_sizes = kernel_sizes if kernel_sizes else [3 for _ in range(self.size)]
+        self.padding_sizes = padding_sizes if padding_sizes else [1 for _ in range(self.size)]
+
+        for i in range(self.size):
+            self.layer_list.append(
+                Conv2D(self.nin,
+                       self.filters[i],
+                       self.kernel_sizes[i],
+                       self.padding_sizes[i],
+                       activation='relu')
+            )
+
+    def __call__(self, x):
+        for convolutional_layer in self.layers:
+            x = convolutional_layer(x)
+        return x
+
+    def parameters(self):
+        return [layer.parameters for layer in self.layer_list]
+
+    def __repr__(self):
+        return f"Convolutional Network with {self.nin} inputs and {self.size} filters"
+
+
+c = ConvNet(100, [3, 3, 3], activation='relu')
+
 
 #
 # Test code for rpow and sigmoid
 #
 
+
 x = ValueExt(2)  # self
+
 y = float(3)  # other
 x = y ** x
 z = x.sigmoid()

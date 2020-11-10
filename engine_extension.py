@@ -1,4 +1,5 @@
 from micrograd.engine import Value
+import math
 
 
 class ValueExt(Value):
@@ -8,13 +9,12 @@ class ValueExt(Value):
     """
     def __init__(self, data, _children=(), _op=''):
         super().__init__(data, _children=(), _op='')
-        self.e = 2.71828182845904523536028747135266249775724709369995
 
     def sigmoid(self):
-        out = ValueExt(self.e ** self / (self.e ** self + 1))
+        out = ValueExt(math.e ** self / (math.e ** self + 1))
 
         def _backward():
-            self.grad += self.e ** self / ((self.e ** self + 1) * (self.e ** self + 1))
+            self.grad += math.e ** self / ((math.e ** self + 1) * (math.e ** self + 1))
 
         out._backward = _backward
 
