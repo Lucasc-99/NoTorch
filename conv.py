@@ -1,11 +1,32 @@
 from micrograd.engine import Value
-from micrograd.nn import Module, Neuron, Layer, MLP
+from micrograd.nn import Module
 import numpy as np
-import typing
 import random
 
 
-def _conv(in_matrix, kernel, stride_vertical, stride_horizontal, padding=0):
+class ValueExt(Value):
+
+    def __init__(self, data, _children=(), _op=''):
+        super().__init__(data, _children=(), _op='')
+        self.e = 2.71828182845904523536028747135266249775724709369995
+
+    def __rpow__(self, other):  # other ** self
+        out = ValueExt(1)
+        for i in range(self.data):
+            out *= other
+        return out
+
+    def sigmoid(self):
+        out = ValueExt(self.e**self / (self.e**self + 1))
+
+        def _backward():
+            self.grad += self.e**self / ((self.e**self + 1) * (self.e**self + 1))
+        out._backward = _backward
+
+        return out
+
+
+def _conv(in_matrix, kernel, stride_vertical=1, stride_horizontal=1, padding=0):
     """
     Calculate the convolution of input matrix with kernel. Outputs
     :param in_matrix: a matrix representing input later
@@ -47,7 +68,7 @@ def _conv(in_matrix, kernel, stride_vertical, stride_horizontal, padding=0):
 
 
 # Does it matter between random.gauss and random.uniform?
-def _build_kernel(k, d):
+def _build_random_kernel(k, d):
     """
     Build a kernel with random values
     :param k: size
@@ -56,24 +77,27 @@ def _build_kernel(k, d):
     """
     return np.array([
         [
-            [Value(np.random.uniform(0, 1)) for _ in range(k)]
+            [ValueExt(random.gauss(0, 1)) for _ in range(k)]
             for _ in range(k)]
         for _ in range(d)])
 
 
 class Conv2D(Module):
-    def __init__(self, nin, nout, kernel_size, stride, relu=False, padding=0, **kwargs):
+    def __init__(self, nin, nout, kernel_size, stride: (int, int), relu=False, padding=0, **kwargs):
         self.nin = nin
         self.nout = nout
         self.kernel_size = kernel_size
-        self.stride = stride
+        self.stride_vert = stride[0]
+        self.stride_horiz = stride[1]
         self.relu = relu
         self.padding = padding
-        self.kernels = [_build_kernel(kernel_size, nout) for _ in range(nout)]
+        self.kernels = [_build_random_kernel(kernel_size, nout) for _ in range(nout)]
 
     def __call__(self, x):  # return a 3 - dim array with output image of convolution for each kernel
         out = np.dstack(
-            [_conv(x, kernel=kernel, padding=self.padding, stride=self.stride)
+            [_conv(x, kernel, stride_vertical=self.stride_vert,
+                   stride_horizontal=self.stride_horiz,
+                   padding=self.padding)
              for kernel in self.kernels])
         if self.relu:
             return [
@@ -92,6 +116,16 @@ class Conv2D(Module):
     def __repr__(self):
         return f"Convolutional Layer with  [{len(self.kernels)}] kernels"
 
+
+#
+# Test code for rpow and sigmoid
+#
+x = ValueExt(2)  # self
+y = float(3)  # other
+w = x**y
+z = x.sigmoid()
+print("rpow 2**3 == ", w)
+print("sigmoid(2) == ", z)
 
 #
 # Test code for _conv
@@ -115,7 +149,7 @@ test_in_mat_5x5 = [[3, 2, 3, 4, 5],
 test_kernel = [[0, 0, 0],
                [0, 1, 0],
                [0, 0, 0]]
-test_kernel_1 = _build_kernel(3, 1)
+test_kernel_1 = _build_random_kernel(3, 1)
 print(test_kernel_1)
 test_out_1 = _conv(test_in_mat_5x5, test_kernel, stride_vertical=1, stride_horizontal=1, padding=1)
 # test_out_2 = _conv(test_in_mat_5x5, test_kernel, 1)
