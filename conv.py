@@ -136,17 +136,10 @@ class ConvNet(Module):
         return f"Convolutional Network with {self.in_channels} inputs and {self.size} filters"
 
 
-c = ConvNet(1, [3], activation='relu')
-test_in_mat_6x6 = [[3, 2, 3, 4, 5, 15],
-                  [4, 7, -5, 3, 4, -20],
-                 [5, -2, -5, 7, -7, 1],
-                [9, 1, 7, 8, 3, 4],
-               [1, 2, -3, 4, -5, 6],
-              [4, 7, -5, 3, 4, 20]]
+# if __name__ == '__main__':
+    # Train a classifier !
 
-a = c(test_in_mat_6x6)
 
-print(len(a))
 #
 # Test code for rpow and sigmoid
 #
