@@ -2,6 +2,8 @@ from engine_extension import ValueExt
 from micrograd.nn import Module, MLP
 import numpy as np
 import random
+from torchvision import datasets, transforms
+from torch import nn
 
 
 def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
@@ -9,8 +11,8 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
     Calculate the convolution of input matrix with kernel. Outputs
     :param in_matrix: a matrix representing input later
     :param kernel: matrix representing kernel values
-    :param stride_vertical: vertical kernel stride
-    :param stride_horizontal: horizontal kernel stride
+    :param vertical_stride: vertical kernel stride
+    :param horizontal_stride: horizontal kernel stride
     :param padding: padding for input matrix
     :return: a matrix of output values
     """
@@ -76,23 +78,24 @@ class Conv2D(Module):
         self.padding = padding
         self.kernels = [_build_random_kernels(kernel_size, in_channels) for _ in range(out_filters)]
         self.activation_fun = None
-        if activation:
-            if activation == 'relu':
-                self.activation_fun = ValueExt.relu
-            elif activation == 'sigmoid':
-                self.activation_fun = ValueExt.sigmoid
+        self.activation_fun = activation if activation else 'None'
 
     def __call__(self, x):  # return a 3 - dim array with output image of convolution for each kernel
         out = np.dstack(
             [_conv(x, kernel, self.stride_vert, self.stride_horiz, self.padding)
              for kernel in self.kernels])
-        if self.activation_fun:
+        if self.activation_fun == 'relu':
             out = [
                 [
-                    [i.relu() for i in row]  # Python not functional enough for this?
+                    [i.relu() for i in row]
                     for row in channel]
                 for channel in out]
-
+        if self.activation_fun == 'sigmoid':
+            out = [
+                [
+                    [i.sigmoid() for i in row]
+                    for row in channel]
+                for channel in out]
         return out
 
     def parameters(self):
@@ -110,13 +113,13 @@ class ConvNet(Module):
         self.in_channels = in_channels
         self.filters = filters  # number of layers in the network
         self.size = len(filters)
-        self.layer_list = []
+        self.layers = []
         self.activation = activation
         self.kernel_sizes = kernel_sizes if kernel_sizes else [3 for _ in range(self.size)]
         self.padding_sizes = padding_sizes if padding_sizes else [1 for _ in range(self.size)]
 
         for i in range(self.size):
-            self.layer_list.append(
+            self.layers.append(
                 Conv2D(self.in_channels,
                        self.filters[i],
                        self.kernel_sizes[i],
@@ -125,66 +128,47 @@ class ConvNet(Module):
             )
 
     def __call__(self, x):
-        for convolutional_layer in self.layer_list:
-            x = convolutional_layer(x)
+        for conv_2d in self.layers:
+            x = conv_2d(x)
         return x
 
     def parameters(self):
-        return [layer.parameters() for layer in self.layer_list]
+        return [p for layer in self.layers for p in layer.parameters()]
 
     def __repr__(self):
         return f"Convolutional Network with {self.in_channels} inputs and {self.size} filters"
 
 
-# if __name__ == '__main__':
-    # Train a classifier !
+class MNistClassifier(Module):
+
+    def __init__(self, classes):
+        self.classes = classes
+
+        self.conv = ConvNet(in_channels=1, filters=[4, 4, 4, 4, 4], kernel_sizes=[5, 5, 3, 3, 3], activation='relu')
+
+        dense_size = 784  # 28 * 28?
+        self.dense = MLP(dense_size, [classes])
+
+    def forward(self, img):
+        img = img.reshape([28, 28, 1])  # How do these dimensions change?
+        features = self.conv(img)
+        return self.dense(features)
 
 
-#
-# Test code for rpow and sigmoid
-#
+if __name__ == '__main__':
+    """ Using this: 
+    
+    https://towardsdatascience.com/handwritten-digit-mnist-pytorch-977b5338e627  
+    
+    tutorial"""
 
-"""
-x = ValueExt(2)  # self
+    transform = transforms.Compose([transforms.ToTensor(),
+                                    transforms.Normalize((0.5,), (0.5,)),
+                                    ])
 
-y = float(3)  # other
-x = y ** x
-z = x.sigmoid()
-w = ValueExt(2).sigmoid()
+    trainset = datasets.MNIST('PATH_TO_STORE_TRAINSET', download=True, train=True, transform=transform)
+    valset = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, transform=transform)
 
-a = ValueExt(-20).relu()
-print(type(a))
-print("rpow 2**3 == x == ", x)
-print("sigmoid(x) == ", z)
-print("sigmoid(2) == ", w)
-"""
+    # TODO: Negative log likely-hood loss
 
-#
-# Test code for _conv
-#
-'''
-
-test_in_mat_6x6 = [[3, 2, 3, 4, 5, 15],
-                  [4, 7, -5, 3, 4, -20],
-                 [5, -2, -5, 7, -7, 1],
-                [9, 1, 7, 8, 3, 4],
-               [1, 2, -3, 4, -5, 6],
-              [4, 7, -5, 3, 4, 20]]
-
-test_in_mat_5x5 = [[3, 2, 3, 4, 5],
-                  [4, 7, 5, 3, 4],
-                 [5, 2, 5, 7, 7],
-                [9, 1, 7, 8, 3],
-               [1, 2, 3, 4, 5]]
-
-
-test_kernel = [[0, 0, 0],
-             [0, 1, 0],
-            [0, 0, 0]]
-
-test_kernel_1 = _build_random_kernel(3, 1)
-print(test_kernel_1)
-test_out_1 = _conv(test_in_mat_5x5, test_kernel, 1, 1, padding=1)
-test_out_2 = _conv(test_in_mat_5x5, test_kernel, 1)
-print(test_out_1)
-'''
+    classifier = MNistClassifier(10)
