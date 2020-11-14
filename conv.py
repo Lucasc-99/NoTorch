@@ -164,7 +164,7 @@ def softmax(in_vector):
     for i in range(in_vector):
         t += in_vector[i]
 
-    return [i/t for i in in_vector]
+    return [i / t for i in in_vector]
 
 
 if __name__ == '__main__':
@@ -187,6 +187,8 @@ if __name__ == '__main__':
 
     for img, cl in trainset:
         out = softmax(classifier(img))
-        # loss
-        break  # remove later
+        # TODO: loss
+        # TODO: back-propagate
+        break  # TODO: remove later
 
+    # TODO: test model on valset
