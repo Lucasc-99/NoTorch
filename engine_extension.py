@@ -11,11 +11,20 @@ class ValueExt(Value):
         super().__init__(data, _children=(), _op='')
 
     def sigmoid(self):
-        out = ValueExt(math.e ** self / (math.e ** self + 1))
+        out = ValueExt(math.e ** self / (math.e ** self + 1), (self,), f'sigmoid')
 
         def _backward():
             self.grad += math.e ** self / ((math.e ** self + 1) * (math.e ** self + 1))
 
+        out._backward = _backward
+
+        return out
+
+    def ln(self):
+        out = ValueExt(math.log(self.data), (self,), f'ln')
+
+        def _backward():
+            self.grad += 1 / self.data * out.grad
         out._backward = _backward
 
         return out

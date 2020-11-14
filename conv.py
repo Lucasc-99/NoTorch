@@ -2,8 +2,8 @@ from engine_extension import ValueExt
 from micrograd.nn import Module, MLP
 import numpy as np
 import random
+import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
-from torch import nn
 
 
 def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
@@ -57,7 +57,7 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
 def _build_random_kernels(k, d):
     """
     Build a kernel with random values
-    :param k: size
+    :param k: size kxk
     :param d: depth
     :return: kernel
     """
@@ -149,10 +149,22 @@ class MNistClassifier(Module):
         dense_size = 784  # 28 * 28?
         self.dense = MLP(dense_size, [classes])
 
-    def forward(self, img):
+    def __call__(self, img):
         img = img.reshape([28, 28, 1])  # How do these dimensions change?
         features = self.conv(img)
         return self.dense(features)
+
+    def parameters(self):
+        return self.conv.parameters() + self.dense.parameters()
+
+
+def softmax(in_vector):
+    t = ValueExt(0)
+
+    for i in range(in_vector):
+        t += in_vector[i]
+
+    return [i/t for i in in_vector]
 
 
 if __name__ == '__main__':
@@ -169,6 +181,12 @@ if __name__ == '__main__':
     trainset = datasets.MNIST('PATH_TO_STORE_TRAINSET', download=True, train=True, transform=transform)
     valset = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, transform=transform)
 
-    # TODO: Negative log likely-hood loss
-
+    im_test, cl_test = trainset[0]
+    plt.imshow(im_test.reshape(28, 28), cmap='gray')
     classifier = MNistClassifier(10)
+
+    for img, cl in trainset:
+        out = softmax(classifier(img))
+        # loss
+        break  # remove later
+
