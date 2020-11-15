@@ -1,3 +1,5 @@
+import math
+
 from engine_extension import ValueExt
 from micrograd.nn import Module, MLP
 import numpy as np
@@ -44,11 +46,14 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
     patches = [
         [
             pad_matrix[start_row: start_row + k, start_col: start_col + k]
-            for start_col in range(0, width - k + 1, horizontal_stride)
+            for start_col in range(0, pad_width - k + 1, horizontal_stride)
         ]
-        for start_row in range(0, height - k + 1, vertical_stride)
+        for start_row in range(0, pad_height - k + 1, vertical_stride)
     ]
+    assert (len(pad_matrix[0] == pad_width))
+    assert (len(pad_matrix) == pad_height)
 
+    assert(len(patch) == len(kernel) for patch in patches)
     # calculate convolution
     return np.array([[np.sum(np.multiply(patch_r, kernel)) for patch_r in patch] for patch in patches])
 
@@ -63,9 +68,9 @@ def _build_random_kernels(k, d):
     """
     return np.array([
         [
-            [ValueExt(random.gauss(0, 1)) for _ in range(k)]
+            [ValueExt(random.gauss(0, 1)) for _ in range(d)]
             for _ in range(k)]
-        for _ in range(d)])
+        for _ in range(k)])
 
 
 class Conv2D(Module):
@@ -84,19 +89,21 @@ class Conv2D(Module):
         out = np.dstack(
             [_conv(x, kernel, self.stride_vert, self.stride_horiz, self.padding)
              for kernel in self.kernels])
+
         if self.activation_fun == 'relu':
             out = [
                 [
-                    [i.relu() for i in row]
-                    for row in channel]
+                    [i.relu() for i in mat]
+                    for mat in channel]
                 for channel in out]
+
         if self.activation_fun == 'sigmoid':
             out = [
                 [
                     [i.sigmoid() for i in row]
                     for row in channel]
                 for channel in out]
-        return out
+        return np.array(out)
 
     def parameters(self):
         parameters = []
@@ -152,6 +159,7 @@ class MNistClassifier(Module):
     def __call__(self, img):
         img = img.reshape([28, 28, 1])  # How do these dimensions change?
         features = self.conv(img)
+        features = features.reshape([-1]).tolist()
         return self.dense(features)
 
     def parameters(self):
@@ -161,10 +169,10 @@ class MNistClassifier(Module):
 def softmax(in_vector):
     t = ValueExt(0)
 
-    for i in range(in_vector):
-        t += in_vector[i]
+    for i in in_vector:
+        t += math.e ** i
 
-    return [i / t for i in in_vector]
+    return [math.e ** i / t for i in in_vector]
 
 
 if __name__ == '__main__':
@@ -182,13 +190,12 @@ if __name__ == '__main__':
     valset = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, transform=transform)
 
     im_test, cl_test = trainset[0]
-    plt.imshow(im_test.reshape(28, 28), cmap='gray')
+    # plt.imshow(im_test.reshape(28, 28), cmap='gray')
     classifier = MNistClassifier(10)
 
-    for img, cl in trainset:
-        out = softmax(classifier(img))
-        # TODO: loss
-        # TODO: back-propagate
-        break  # TODO: remove later
+    print(np.shape(im_test))
 
+    out = classifier(im_test)
+    #out = softmax(out)
+    print(out)
     # TODO: test model on valset
