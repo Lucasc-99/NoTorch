@@ -2,10 +2,12 @@ import math
 
 from engine_extension import ValueExt
 from micrograd.nn import Module, MLP
+from typing import List, Union
 import numpy as np
 import random
 import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
+# from numba import  jit, cuda
 
 
 def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
@@ -18,21 +20,25 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
     :param padding: padding for input matrix
     :return: a matrix of output values
     """
-    k = len(kernel[0])
-    height, width = len(in_matrix), len(in_matrix[0])
-
+    kernel = np.asarray(kernel)
     in_matrix = np.asarray(in_matrix)
+
+    height, width = in_matrix.shape[:2]
+
+    depth = in_matrix.shape[2] if in_matrix.ndim >= 2 else None
+
+    kernel_h = kernel.shape[0]
+    kernel_w = kernel.shape[1]
 
     pad_width = padding + width + padding
     pad_height = padding + height + padding
 
-    assert (height * width * k is not 0)  # make sure there are no zero inputs
-    assert (len(kernel) % 2 != 0)
-    assert (len(in_matrix) == len(in_matrix[0]))
-
-    pad_matrix = None
-    if padding:
+    if depth:
+        pad_matrix = np.empty(shape=(pad_height, pad_width, depth))
+    else:
         pad_matrix = np.empty(shape=(pad_height, pad_width))
+
+    if padding:
         for i in range(pad_height):
             for j in range(pad_width):
                 if not (i < padding or i >= pad_height - padding or j < padding or j >= pad_width - padding):
@@ -42,20 +48,20 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
     else:
         pad_matrix = in_matrix
 
-    # find patches
-    patches = [
-        [
-            pad_matrix[start_row: start_row + k, start_col: start_col + k]
-            for start_col in range(0, pad_width - k + 1, horizontal_stride)
-        ]
-        for start_row in range(0, pad_height - k + 1, vertical_stride)
-    ]
-    assert (len(pad_matrix[0] == pad_width))
-    assert (len(pad_matrix) == pad_height)
+    out_h = (pad_height - kernel_h + 1) // vertical_stride
+    out_w = (pad_width - kernel_w + 1) // horizontal_stride
 
-    assert(len(patch) == len(kernel) for patch in patches)
-    # calculate convolution
-    return np.array([[np.sum(np.multiply(patch_r, kernel)) for patch_r in patch] for patch in patches])
+    if depth:
+        out_matrix = np.empty(shape=(out_h, out_w, depth), dtype=kernel.dtype)
+    else:
+        out_matrix = np.empty(shape=(out_h, out_w), dtype=kernel.dtype)
+
+    for row in range(0, pad_height - kernel_h + 1, vertical_stride):
+        for col in range(0, pad_width - kernel_w + 1, horizontal_stride):
+            patch = pad_matrix[row: row + kernel_h, col: col + kernel_w]  # [kernel_h x kernel_w]
+            out_matrix[row][col] = np.sum(np.multiply(patch, kernel))
+
+    return out_matrix
 
 
 # Does it matter between random.gauss and random.uniform?
@@ -166,13 +172,17 @@ class MNistClassifier(Module):
         return self.conv.parameters() + self.dense.parameters()
 
 
-def softmax(in_vector):
+def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
     t = ValueExt(0)
+
+    in_vector = np.asarray(in_vector)
+
+    in_vector -= in_vector / 2
 
     for i in in_vector:
         t += math.e ** i
 
-    return [math.e ** i / t for i in in_vector]
+    return np.asarray([math.e ** i / t for i in in_vector])
 
 
 if __name__ == '__main__':
@@ -193,9 +203,11 @@ if __name__ == '__main__':
     # plt.imshow(im_test.reshape(28, 28), cmap='gray')
     classifier = MNistClassifier(10)
 
-    print(np.shape(im_test))
+    print("Running forward pass")
 
     out = classifier(im_test)
-    #out = softmax(out)
-    print(out)
+
+    print("Forward pass done")
+
+    out = softmax(out)
     # TODO: test model on valset
