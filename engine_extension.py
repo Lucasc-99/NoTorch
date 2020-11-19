@@ -100,3 +100,9 @@ class ValueExt(Value):
     def __rpow__(self, other):
         out = other ** self.data
         return ValueExt(out)
+
+    def __ge__(self: Value, other) -> bool:
+        return self.data >= (other.data if isinstance(other, Value) else other)
+
+    def __eq__(self: Value, other) -> bool:
+        return self.data == (other.data if isinstance(other, Value) else other)

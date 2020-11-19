@@ -7,6 +7,8 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
+
+
 # from numba import  jit, cuda
 
 
@@ -33,38 +35,26 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
     pad_width = padding + width + padding
     pad_height = padding + height + padding
 
-    if depth:
-        pad_matrix = np.empty(shape=(pad_height, pad_width, depth))
-    else:
-        pad_matrix = np.empty(shape=(pad_height, pad_width))
-
     if padding:
-        for i in range(pad_height):
-            for j in range(pad_width):
-                if not (i < padding or i >= pad_height - padding or j < padding or j >= pad_width - padding):
-                    pad_matrix[i][j] = in_matrix[i - padding][j - padding]
-                else:
-                    pad_matrix[i][j] = 0
+        pad_matrix = [
+            [in_matrix[i - padding, j - padding]
+             if not (i < padding or i >= pad_height - padding or j < padding or j >= pad_width - padding)
+             else 0 for j in range(pad_width)] for i in range(pad_height)]
     else:
         pad_matrix = in_matrix
 
     out_h = (pad_height - kernel_h + 1) // vertical_stride
     out_w = (pad_width - kernel_w + 1) // horizontal_stride
 
-    if depth:
-        out_matrix = np.empty(shape=(out_h, out_w, depth), dtype=kernel.dtype)
-    else:
-        out_matrix = np.empty(shape=(out_h, out_w), dtype=kernel.dtype)
-
-    for row in range(0, pad_height - kernel_h + 1, vertical_stride):
-        for col in range(0, pad_width - kernel_w + 1, horizontal_stride):
-            patch = pad_matrix[row: row + kernel_h, col: col + kernel_w]  # [kernel_h x kernel_w]
-            out_matrix[row][col] = np.sum(np.multiply(patch, kernel))
-
-    return out_matrix
+    return [
+        [
+            np.sum(np.multiply(pad_matrix[row: row + kernel_h, col: col + kernel_w], kernel))
+            for col in range(0, width - kernel_w + 1, horizontal_stride)
+        ]
+        for row in range(0, height - kernel_h + 1, vertical_stride)
+    ]
 
 
-# Does it matter between random.gauss and random.uniform?
 def _build_random_kernels(k, d):
     """
     Build a kernel with random values
@@ -177,7 +167,7 @@ def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
 
     in_vector = np.asarray(in_vector)
 
-    in_vector -= in_vector / 2
+    in_vector -= in_vector.mean()
 
     for i in in_vector:
         t += math.e ** i
@@ -209,5 +199,6 @@ if __name__ == '__main__':
 
     print("Forward pass done")
 
-    out = softmax(out)
+    # out = softmax(out)
+
     # TODO: test model on valset
