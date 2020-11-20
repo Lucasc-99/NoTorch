@@ -1,13 +1,12 @@
 import math
 
-from engine_extension import ValueExt
 from micrograd.nn import Module, MLP
 from typing import List, Union
 import numpy as np
 import random
 import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
-
+from engine_extension import Value
 
 # from numba import  jit, cuda
 
@@ -27,8 +26,6 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
 
     height, width = in_matrix.shape[:2]
 
-    depth = in_matrix.shape[2] if in_matrix.ndim >= 2 else None
-
     kernel_h = kernel.shape[0]
     kernel_w = kernel.shape[1]
 
@@ -42,9 +39,6 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
              else 0 for j in range(pad_width)] for i in range(pad_height)]
     else:
         pad_matrix = in_matrix
-
-    out_h = (pad_height - kernel_h + 1) // vertical_stride
-    out_w = (pad_width - kernel_w + 1) // horizontal_stride
 
     return [
         [
@@ -64,7 +58,7 @@ def _build_random_kernels(k, d):
     """
     return np.array([
         [
-            [ValueExt(random.gauss(0, 1)) for _ in range(d)]
+            [Value(random.gauss(0, 1)) for _ in range(d)]
             for _ in range(k)]
         for _ in range(k)])
 
@@ -143,11 +137,13 @@ class ConvNet(Module):
 
 
 class MNistClassifier(Module):
-
     def __init__(self, classes):
         self.classes = classes
 
-        self.conv = ConvNet(in_channels=1, filters=[4, 4, 4, 4, 4], kernel_sizes=[5, 5, 3, 3, 3], activation='relu')
+        self.conv = ConvNet(in_channels=1,
+                            filters=[4, 4, 4, 4, 4],
+                            kernel_sizes=[5, 5, 3, 3, 3],
+                            activation='relu')
 
         dense_size = 784  # 28 * 28?
         self.dense = MLP(dense_size, [classes])
@@ -163,16 +159,10 @@ class MNistClassifier(Module):
 
 
 def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
-    t = ValueExt(0)
-
     in_vector = np.asarray(in_vector)
-
-    in_vector -= in_vector.mean()
-
-    for i in in_vector:
-        t += math.e ** i
-
-    return np.asarray([math.e ** i / t for i in in_vector])
+    in_vector -= in_vector.max()
+    in_vector = np.exp(in_vector)
+    return in_vector / in_vector.sum(-1)
 
 
 if __name__ == '__main__':
@@ -190,15 +180,8 @@ if __name__ == '__main__':
     valset = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, transform=transform)
 
     im_test, cl_test = trainset[0]
-    # plt.imshow(im_test.reshape(28, 28), cmap='gray')
     classifier = MNistClassifier(10)
-
-    print("Running forward pass")
-
     out = classifier(im_test)
-
-    print("Forward pass done")
-
-    # out = softmax(out)
-
-    # TODO: test model on valset
+    loss = -(softmax(out).max().ln())
+    loss.backward()
+    print(loss.grad)
