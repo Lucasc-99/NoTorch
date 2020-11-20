@@ -57,6 +57,7 @@ def __eq__(self: Value, other) -> bool:
 
 Value.ln = ln
 Value.exp = exp
+Value.sigmoid = sigmoid
 
 Value.__rpow__ = __rpow__
 Value.__pow__ = __pow__
