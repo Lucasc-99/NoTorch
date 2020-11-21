@@ -49,7 +49,7 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
     ]
 
 
-def _build_random_kernels(k, d):
+def _build_random_kernel(k, d):
     """
     Build a kernel with random values
     :param k: size kxk
@@ -58,7 +58,7 @@ def _build_random_kernels(k, d):
     """
     return np.array([
         [
-            [Value(random.gauss(0, 1)) for _ in range(d)]
+            [Value(random.gauss(0, 1) * np.sqrt(2) / (k * k * d)) for _ in range(d)]
             for _ in range(k)]
         for _ in range(k)])
 
@@ -71,7 +71,7 @@ class Conv2D(Module):
         self.stride_horiz = stride_h
         self.activation = activation
         self.padding = padding
-        self.kernels = [_build_random_kernels(kernel_size, in_channels) for _ in range(out_filters)]
+        self.kernels = [_build_random_kernel(kernel_size, in_channels) for _ in range(out_filters)]
         self.activation_fun = None
         self.activation_fun = activation if activation else 'None'
 
@@ -98,7 +98,7 @@ class Conv2D(Module):
     def parameters(self):
         parameters = []
         for kernel in self.kernels:
-            parameters.append(kernel)
+            parameters.extend(kernel.flat)
         return parameters
 
     def __repr__(self):
@@ -137,8 +137,8 @@ class ConvNet(Module):
 
 
 class MNistClassifier(Module):
-    def __init__(self, classes):
-        self.classes = classes
+    def __init__(self):
+        self.classes = 10
 
         self.conv = ConvNet(in_channels=1,
                             filters=[4, 4, 4, 4, 4],
@@ -146,23 +146,25 @@ class MNistClassifier(Module):
                             activation='relu')
 
         dense_size = 784  # 28 * 28?
-        self.dense = MLP(dense_size, [classes])
+        self.dense = MLP(dense_size, [self.classes])
 
     def __call__(self, img):
         img = img.reshape([28, 28, 1])  # How do these dimensions change?
         features = self.conv(img)
         features = features.reshape([-1]).tolist()
-        return self.dense(features)
+        self.dense(features)
+        return np.array(self.dense(features))
 
     def parameters(self):
         return self.conv.parameters() + self.dense.parameters()
 
 
 def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
-    in_vector = np.asarray(in_vector)
-    in_vector -= in_vector.max()
-    in_vector = np.exp(in_vector)
-    return in_vector / in_vector.sum(-1)
+    x = np.asarray(in_vector)
+    x -= x.max()
+    out = np.exp(x)
+    out /= out.sum(-1)
+    return out
 
 
 if __name__ == '__main__':
@@ -175,13 +177,35 @@ if __name__ == '__main__':
     transform = transforms.Compose([transforms.ToTensor(),
                                     transforms.Normalize((0.5,), (0.5,)),
                                     ])
+    # Training dataset
+    train_set = datasets.MNIST('PATH_TO_STORE_TRAINSET', download=True, train=True, transform=transform)
 
-    trainset = datasets.MNIST('PATH_TO_STORE_TRAINSET', download=True, train=True, transform=transform)
-    valset = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, transform=transform)
+    # Test dataset
+    val_set = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, transform=transform)
 
-    im_test, cl_test = trainset[0]
-    classifier = MNistClassifier(10)
-    out = classifier(im_test)
-    loss = -(softmax(out).max().ln())
-    loss.backward()
-    print(loss.grad)
+    classifier = MNistClassifier()  # Convolutional NN model for 28x28x1 images
+
+    for count, (image, cl) in enumerate(train_set):
+        probabilities = softmax(classifier(image))
+        loss = - probabilities[cl] + np.sum(probabilities[np.arange(10) != cl])
+
+        # loss = -1 * logits[cl].ln() if logits[cl] != 0 else Value(1)  # NLL loss
+        print(f"Loss at # {count} == {loss}")
+
+        classifier.zero_grad()
+        loss.backward()
+        assert(loss.grad != 0)
+        learning_rate = .001
+        for p in classifier.parameters():
+            p.data -= learning_rate * p.grad
+        if count == 900:
+            break
+
+    accuracy_count = 0.0
+    for count, (image, cl) in enumerate(val_set):
+        prediction = classifier(image).argmax()
+        accuracy_count += (prediction == cl)
+        if count == 100:
+            break
+
+    print(f"Accuracy is {accuracy_count / 100.0}")
