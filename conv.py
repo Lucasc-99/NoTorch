@@ -11,7 +11,7 @@ sys.setrecursionlimit(10_000)
 
 def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=None):
     """
-    Calculate the convolution of input matrix with kernel. Outputs
+    Calculate the convolution of input matrix with kernel
     :param in_matrix: a matrix representing input later
     :param kernel: matrix representing kernel values
     :param vertical_stride: vertical kernel stride
@@ -73,7 +73,7 @@ def _build_random_kernel(k, d):
     return np.array([
         [
             # This uses a method based on kaiming initialization
-            # Previously, I used a uniform random variable which lead to vanishing gradients
+            # Previously, I just used uniform RV which lead to vanishing gradients
             [Value(random.gauss(0, 1) * np.sqrt(2) / (k * k * d)) for _ in range(d)]
             for _ in range(k)]
         for _ in range(k)])
