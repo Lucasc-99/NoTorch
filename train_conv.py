@@ -2,6 +2,11 @@ from torchvision import datasets, transforms
 from engine_extension import Value
 from conv import MNistClassifier, softmax, nll_loss
 
+
+"""
+    An example of a single forward 
+    and backward pass on the first image in MNist
+"""
 transform = transforms.Compose([transforms.ToTensor(),
                                 transforms.Normalize((0.5,), (0.5,)),
                                 ])
