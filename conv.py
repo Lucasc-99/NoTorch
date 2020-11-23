@@ -4,14 +4,20 @@ from micrograd.nn import Module, MLP
 from typing import List, Union
 import numpy as np
 import random
+import sys
 import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
 from engine_extension import Value
 
+sys.setrecursionlimit(10_000)
+
+
+# recursion limit is exceeded during gradient calculation because recursive topological sort
+
 # from numba import  jit, cuda
 
 
-def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
+def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=None):
     """
     Calculate the convolution of input matrix with kernel. Outputs
     :param in_matrix: a matrix representing input later
@@ -21,6 +27,8 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
     :param padding: padding for input matrix
     :return: a matrix of output values
     """
+    assert vertical_stride * horizontal_stride > 0  # check for zero stride
+
     kernel = np.asarray(kernel)
     in_matrix = np.asarray(in_matrix)
 
@@ -32,6 +40,8 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
     pad_width = padding + width + padding
     pad_height = padding + height + padding
 
+    # Add padding to the input matrix if necessary
+
     if padding:
         pad_matrix = [
             [in_matrix[i - padding, j - padding]
@@ -40,24 +50,38 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=0):
     else:
         pad_matrix = in_matrix
 
-    return [
+    patches = [  # Create a list of image patches
         [
-            np.sum(np.multiply(pad_matrix[row: row + kernel_h, col: col + kernel_w], kernel))
-            for col in range(0, width - kernel_w + 1, horizontal_stride)
+            pad_matrix[r: r + kernel_h, c: c + kernel_w]
+            for c in range(0, pad_width - kernel_w + 1, horizontal_stride)
         ]
-        for row in range(0, height - kernel_h + 1, vertical_stride)
+        for r in range(0, pad_height - kernel_h + 1, vertical_stride)
     ]
+
+    # Calculate each patch and kernel dot product
+    # These operations are independent and could be parallelized
+
+    output = [
+        [
+            np.sum(np.multiply(patch, kernel))
+            for patch in row
+        ] for row in patches
+    ]
+
+    return np.array(output)
 
 
 def _build_random_kernel(k, d):
     """
-    Build a kernel with random values
+    Build a kernel with random values,
     :param k: size kxk
     :param d: depth
     :return: kernel
     """
     return np.array([
         [
+            # This uses a method based on kaiming initialization
+            # Previously, I used a uniform random variable which lead to vanishing gradients
             [Value(random.gauss(0, 1) * np.sqrt(2) / (k * k * d)) for _ in range(d)]
             for _ in range(k)]
         for _ in range(k)])
@@ -71,11 +95,13 @@ class Conv2D(Module):
         self.stride_horiz = stride_h
         self.activation = activation
         self.padding = padding
+        # Build filters randomly
         self.kernels = [_build_random_kernel(kernel_size, in_channels) for _ in range(out_filters)]
         self.activation_fun = None
         self.activation_fun = activation if activation else 'None'
 
     def __call__(self, x):  # return a 3 - dim array with output image of convolution for each kernel
+        # Pass input matrix through each kernel
         out = np.dstack(
             [_conv(x, kernel, self.stride_vert, self.stride_horiz, self.padding)
              for kernel in self.kernels])
@@ -113,14 +139,16 @@ class ConvNet(Module):
         self.layers = []
         self.activation = activation
         self.kernel_sizes = kernel_sizes if kernel_sizes else [3 for _ in range(self.size)]
-        self.padding_sizes = padding_sizes if padding_sizes else [1 for _ in range(self.size)]
+        self.padding_sizes = padding_sizes if padding_sizes else [0 for _ in range(self.size)]
 
         for i in range(self.size):
             self.layers.append(
-                Conv2D(self.in_channels,
-                       self.filters[i],
-                       self.kernel_sizes[i],
-                       self.padding_sizes[i],
+                Conv2D(in_channels=self.in_channels,
+                       out_filters=self.filters[i],
+                       kernel_size=self.kernel_sizes[i],
+                       stride_v=1,
+                       stride_h=1,
+                       padding=self.padding_sizes[i],
                        activation='relu')
             )
 
@@ -145,15 +173,16 @@ class MNistClassifier(Module):
                             kernel_sizes=[5, 5, 3, 3, 3],
                             activation='relu')
 
-        dense_size = 784  # 28 * 28?
+        dense_size = 784  # 28 * 28
         self.dense = MLP(dense_size, [self.classes])
 
     def __call__(self, img):
-        img = img.reshape([28, 28, 1])  # How do these dimensions change?
+        img = img.reshape([28, 28, 1])  # Dimensions specific to MNist
         features = self.conv(img)
         features = features.reshape([-1]).tolist()
-        self.dense(features)
-        return np.array(self.dense(features))
+        pred = self.dense(features)
+        out = np.array(pred)
+        return out
 
     def parameters(self):
         return self.conv.parameters() + self.dense.parameters()
@@ -162,50 +191,33 @@ class MNistClassifier(Module):
 def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
     x = np.asarray(in_vector)
     x -= x.max()
+
     out = np.exp(x)
     out /= out.sum(-1)
     return out
 
 
 if __name__ == '__main__':
-    """ Using this: 
-    
-    https://towardsdatascience.com/handwritten-digit-mnist-pytorch-977b5338e627  
-    
-    tutorial"""
-
     transform = transforms.Compose([transforms.ToTensor(),
                                     transforms.Normalize((0.5,), (0.5,)),
                                     ])
-    # Training dataset
     train_set = datasets.MNIST('PATH_TO_STORE_TRAINSET', download=True, train=True, transform=transform)
-
-    # Test dataset
     val_set = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, transform=transform)
 
+    image, cl = train_set[0] # first image only
+
     classifier = MNistClassifier()  # Convolutional NN model for 28x28x1 images
+    probabilities = softmax(classifier(image))  # Forward pass with softmax
+    print(probabilities)
 
-    for count, (image, cl) in enumerate(train_set):
-        probabilities = softmax(classifier(image))
-        loss = - probabilities[cl] + np.sum(probabilities[np.arange(10) != cl])
+    # Using Negative Log-Likelihood loss function
+    loss = (-1 * probabilities[cl].ln()) if probabilities[cl] != 0 else Value(1)
 
-        # loss = -1 * logits[cl].ln() if logits[cl] != 0 else Value(1)  # NLL loss
-        print(f"Loss at # {count} == {loss}")
+    classifier.zero_grad()
+    loss.backward()
+    params = classifier.parameters()
+    learning_rate = .001  # This needs to be tuned
 
-        classifier.zero_grad()
-        loss.backward()
-        assert(loss.grad != 0)
-        learning_rate = .001
-        for p in classifier.parameters():
-            p.data -= learning_rate * p.grad
-        if count == 900:
-            break
-
-    accuracy_count = 0.0
-    for count, (image, cl) in enumerate(val_set):
-        prediction = classifier(image).argmax()
-        accuracy_count += (prediction == cl)
-        if count == 100:
-            break
-
-    print(f"Accuracy is {accuracy_count / 100.0}")
+    # back-propagate
+    for p in params:
+        p.data -= learning_rate * p.grad
