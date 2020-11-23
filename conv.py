@@ -1,20 +1,12 @@
-import math
-
 from micrograd.nn import Module, MLP
 from typing import List, Union
 import numpy as np
 import random
 import sys
-import matplotlib.pyplot as plt
-from torchvision import datasets, transforms
 from engine_extension import Value
 
+# recursive topological sort requires this
 sys.setrecursionlimit(10_000)
-
-
-# recursion limit is exceeded during gradient calculation because recursive topological sort
-
-# from numba import  jit, cuda
 
 
 def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=None):
@@ -189,6 +181,11 @@ class MNistClassifier(Module):
 
 
 def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
+    """
+    Softmax normalization function
+    :param in_vector: a 1-dim vector
+    :return: a 1-dim vector with normalized values
+    """
     x = np.asarray(in_vector)
     x -= x.max()
 
@@ -197,27 +194,11 @@ def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
     return out
 
 
-if __name__ == '__main__':
-    transform = transforms.Compose([transforms.ToTensor(),
-                                    transforms.Normalize((0.5,), (0.5,)),
-                                    ])
-    train_set = datasets.MNIST('PATH_TO_STORE_TRAINSET', download=True, train=True, transform=transform)
-    val_set = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, transform=transform)
-
-    image, cl = train_set[0] # first image only
-
-    classifier = MNistClassifier()  # Convolutional NN model for 28x28x1 images
-    probabilities = softmax(classifier(image))  # Forward pass with softmax
-    print(probabilities)
-
-    # Using Negative Log-Likelihood loss function
-    loss = (-1 * probabilities[cl].ln()) if probabilities[cl] != 0 else Value(1)
-
-    classifier.zero_grad()
-    loss.backward()
-    params = classifier.parameters()
-    learning_rate = .001  # This needs to be tuned
-
-    # back-propagate
-    for p in params:
-        p.data -= learning_rate * p.grad
+def nll_loss(probabilities: Union[List, np.ndarray], cl: int) -> Value:
+    """
+    Negative Log Likelihood Loss function
+    :param probabilities: the probabilities of each class
+    :param cl: the index of the correct class
+    :return: a loss value between 0 and 1
+    """
+    return (-1 * probabilities[cl].ln()) if probabilities[cl] != 0 else probabilities**0
