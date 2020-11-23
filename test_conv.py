@@ -17,7 +17,7 @@ image, cl = train_set[0]  # first image only
 
 classifier = MNistClassifier()  # Convolutional NN model for 28x28x1 images
 probabilities = softmax(classifier(image))  # Forward pass with softmax
-
+print(probabilities)
 print(f"Predicted digit is {probabilities.argmax()}")
 
 # Using Negative Log-Likelihood loss function

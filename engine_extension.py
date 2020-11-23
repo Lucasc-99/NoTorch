@@ -62,7 +62,7 @@ def __eq__(self, other):
 
 Value.__rpow__ = __rpow__
 Value.__pow__ = __pow__
-Value.ln = log
+Value.log = log
 Value.exp = exp
 Value.sigmoid = sigmoid
 Value.__ge__ = __ge__

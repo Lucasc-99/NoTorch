@@ -199,6 +199,6 @@ def nll_loss(probabilities: Union[List, np.ndarray], cl: int) -> Value:
     Negative Log Likelihood Loss function
     :param probabilities: the probabilities of each class
     :param cl: the index of the correct class
-    :return: a loss value between 0 and 1
+    :return: a loss value
     """
-    return (-1 * probabilities[cl].ln()) if probabilities[cl] != 0 else probabilities**0
+    return (-1 * probabilities[cl].log()) if probabilities[cl] != 0 else probabilities**0

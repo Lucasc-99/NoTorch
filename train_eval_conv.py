@@ -6,8 +6,8 @@ from conv import MNistClassifier, softmax, nll_loss
     This script takes MANY hours to complete
 """
 
-TRAIN_NUM = 200
-TEST_NUM = 20
+TRAIN_NUM = 1000
+TEST_NUM = 50
 if __name__ == '__main__':
     transform = transforms.Compose([transforms.ToTensor(),
                                     transforms.Normalize((0.5,), (0.5,)),
