@@ -1,5 +1,7 @@
 -test_conv.py: MNist training example
 
+-train_eval_conv.py: full model training and evaluation
+
 -conv.py: Contains Convolutional layer class (Conv2D), Convolutional NNetwork class, and an MNist Classifier. 
 Also contains negative-log likelyhood loss and softmax functions
 
