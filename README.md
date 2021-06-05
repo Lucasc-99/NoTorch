@@ -1,3 +1,6 @@
+A 'from scratch' implementation of a simple convolutional neural network (no pytorch/tensorflow).
+
+
 -test_conv.py: MNist training example
 
 -train_eval_conv.py: full model training and evaluation
