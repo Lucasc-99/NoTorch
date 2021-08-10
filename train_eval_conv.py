@@ -3,7 +3,7 @@ from conv import MNistClassifier, softmax, nll_loss
 
 """
     Full training on MNist and evalutation
-    This script takes MANY hours to complete
+    
 """
 
 TRAIN_NUM = 1000
