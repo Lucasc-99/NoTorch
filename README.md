@@ -1,6 +1,9 @@
-A 'from scratch' implementation of a simple convolutional neural network (no pytorch/tensorflow) using a lightweight automatic differentiation engine.
+<h1>CNN</h1>
+A 'from scratch' implementation of a simple convolutional neural network (no pytorch/tensorflow) built only on Karpathy's micrograd differentiation engine
 
+https://github.com/karpathy/micrograd
 
+<h1>Files</h1>
 
 -test_conv.py: MNist training example
 
