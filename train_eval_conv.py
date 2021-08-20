@@ -11,10 +11,14 @@ from numba import jit
     
 """
 
+
 @jit(forceobj=True)
 def main():
-    TRAIN_NUM = 500
-    TEST_NUM = 1000
+    # MNist train has 60,000 samples
+    TRAIN_NUM = 1000  # Number of training batches
+    BATCH_SIZE = 60  # Training minibatch size
+
+    TEST_NUM = 1000  # Number of test samples
 
     #
     # Get data
@@ -24,8 +28,7 @@ def main():
                                     ])
     train_set = datasets.MNIST('PATH_TO_STORE_TRAINSET', download=True, train=True, transform=transform)
     val_set = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, transform=transform)
-    train_dataloader = DataLoader(train_set, batch_size=60, shuffle=True)
-    # test_dataloader = DataLoader(val_set, batch_size=64, shuffle=True)
+    train_dataloader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
     #
     #
 
@@ -45,7 +48,7 @@ def main():
 
         # Calculate the loss for this batch
         loss = [nll_loss(probabilities[i], cl_batch[i]) for i in range(len(cl_batch))]
-        batch_loss = sum(loss)/len(loss)
+        batch_loss = sum(loss)
         batch_loss.backward()
 
         print("Total loss at batch " + str(count) + " is " + str(batch_loss.data))
@@ -60,7 +63,7 @@ def main():
     print("Training completed, evaluating ")
 
     correct = 0
-    for count, (image, cl) in enumerate(val_set):
+    for count, (image, cl) in tqdm(enumerate(val_set)):
 
         probabilities = softmax(classifier(image))  # Forward pass with softmax
         if probabilities.argmax() == cl:
@@ -69,7 +72,7 @@ def main():
             break
 
     accuracy = correct / TEST_NUM
-    print("Accuracy is: " +str(accuracy))
+    print("Accuracy is: " + str(accuracy))
 
 
 if __name__ == '__main__':
