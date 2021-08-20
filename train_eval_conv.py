@@ -57,7 +57,7 @@ def main():
         for p in classifier.parameters():
             p.data -= learning_rate * p.grad
 
-        if count == TRAIN_NUM:
+        if count == TRAIN_NUM - 1:
             break
 
     print("Training completed, evaluating ")
@@ -68,7 +68,7 @@ def main():
         probabilities = softmax(classifier(image))  # Forward pass with softmax
         if probabilities.argmax() == cl:
             correct += 1
-        if count == TEST_NUM:
+        if count == TEST_NUM - 1:
             break
 
     accuracy = correct / TEST_NUM
