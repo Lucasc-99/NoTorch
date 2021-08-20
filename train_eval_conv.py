@@ -1,7 +1,10 @@
 from torchvision import datasets, transforms
 from conv import MNistClassifier, softmax, nll_loss
+from torch.utils.data import DataLoader
 
 """
+    NOTE: Torch is only used here to load Mnist data
+
     Full training on MNist and evalutation
     
 """
@@ -9,31 +12,50 @@ from conv import MNistClassifier, softmax, nll_loss
 TRAIN_NUM = 1000
 TEST_NUM = 50
 if __name__ == '__main__':
+
+    #
+    # Get data
+    #
     transform = transforms.Compose([transforms.ToTensor(),
                                     transforms.Normalize((0.5,), (0.5,)),
                                     ])
     train_set = datasets.MNIST('PATH_TO_STORE_TRAINSET', download=True, train=True, transform=transform)
     val_set = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, transform=transform)
+    train_dataloader = DataLoader(train_set, batch_size=64, shuffle=True)
+    # test_dataloader = DataLoader(val_set, batch_size=64, shuffle=True)
+    #
+    #
 
-    classifier = MNistClassifier()  # Convolutional NN model for 28x28x1 images
-    learning_rate = .001  # This needs to be tuned
+    # Initialize classifier and learning rate hyper-parameter
+    classifier = MNistClassifier()
+    learning_rate = .001
 
-    for count, (image, cl) in enumerate(train_set):
-        probabilities = softmax(classifier(image))  # Forward pass with softmax
-
-        # Using Negative Log-Likelihood loss function
-        loss = nll_loss(probabilities, cl)
-        print(f"Loss at {count} is {loss}")
+    #
+    # Training loop
+    #
+    for count, (image_batch, cl_batch) in enumerate(train_dataloader):
         classifier.zero_grad()
-        loss.backward()
+        print("zero grad")
+
+        probabilities = [softmax(classifier(img)) for img in image_batch]  # Forward pass with softmax
+        print("batch forward completed")
+        exit(0)
+        # Using Negative Log-Likelihood loss function
+
+        loss = [nll_loss(probabilities[i], cl_batch[i]) for i in range(len(cl_batch))]
+
+        batch_loss = sum(loss)
+        batch_loss.backward()
+
+        print(f"Total loss at batch {count} is {loss}")
+
         # back-propagate
         for p in classifier.parameters():
             p.data -= learning_rate * p.grad
-        if count == TRAIN_NUM:
-            break
 
     correct = 0
     for count, (image, cl) in enumerate(val_set):
+
         probabilities = softmax(classifier(image))  # Forward pass with softmax
         if probabilities.argmax() == cl:
             correct += 1
@@ -42,4 +64,3 @@ if __name__ == '__main__':
 
     accuracy = correct / TEST_NUM
     print(f"Accuracy is {accuracy}")
-

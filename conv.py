@@ -12,7 +12,7 @@ sys.setrecursionlimit(10_000)
 def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=None):
     """
     Calculate the convolution of input matrix with kernel
-    :param in_matrix: a matrix representing input later
+    :param in_matrix: a matrix representing input
     :param kernel: matrix representing kernel values
     :param vertical_stride: vertical kernel stride
     :param horizontal_stride: horizontal kernel stride
@@ -65,7 +65,7 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=Non
 
 def _build_random_kernel(k, d):
     """
-    Build a kernel with random values,
+    Build a convolutional kernel with random values,
     :param k: size kxk
     :param d: depth
     :return: kernel
@@ -73,7 +73,6 @@ def _build_random_kernel(k, d):
     return np.array([
         [
             # This uses a method based on kaiming initialization
-            # Previously, I just used uniform RV which lead to vanishing gradients
             [Value(random.gauss(0, 1) * np.sqrt(2) / (k * k * d)) for _ in range(d)]
             for _ in range(k)]
         for _ in range(k)])
@@ -157,6 +156,11 @@ class ConvNet(Module):
 
 
 class MNistClassifier(Module):
+    """
+    A simple classifier for MNist
+    using 1 convolutional layer and 1 fully connected layer
+    """
+
     def __init__(self):
         self.classes = 10
 
