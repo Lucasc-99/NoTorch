@@ -11,8 +11,8 @@ sys.setrecursionlimit(10_000)
 
 
 @jit(forceobj=True)
-def _conv(in_matrix,
-          kernel,
+def _conv(in_matrix: np.ndarray,
+          kernel: np.ndarray,
           vertical_stride=1,
           horizontal_stride=1,
           padding: int = None):
@@ -27,8 +27,8 @@ def _conv(in_matrix,
     """
     assert vertical_stride * horizontal_stride > 0  # check for zero stride
 
-    kernel = np.asarray(kernel)
-    in_matrix = np.asarray(in_matrix)
+    # kernel = np.asarray(kernel)
+    # in_matrix = np.asarray(in_matrix)
 
     height, width = in_matrix.shape[:2]
 
@@ -67,6 +67,7 @@ def _conv(in_matrix,
     ]
 
     return np.array(output)
+
 
 @jit(forceobj=True)
 def _build_random_kernel(k, d):
@@ -132,7 +133,7 @@ class Conv2D(Module):
 class ConvNet(Module):
     def __init__(self, in_channels, filters, kernel_sizes=None, padding_sizes=None, activation='None'):
         self.in_channels = in_channels
-        self.filters = filters  # number of layers in the network
+        self.filters = filters  # number of convolutional layers in the network
         self.size = len(filters)
         self.layers = []
         self.activation = activation
@@ -171,25 +172,30 @@ class MNistClassifier(Module):
     def __init__(self):
         self.classes = 10
 
+        # filters = number of conv layers
         self.conv = ConvNet(in_channels=1,
-                            filters=[4, 4, 4, 4, 4],
-                            kernel_sizes=[5, 5, 3, 3, 3],
+                            filters=[3],
+                            kernel_sizes=[5],
                             activation='relu')
 
-        dense_size = 784  # 28 * 28
+        dense_size = 10
         self.dense = MLP(dense_size, [self.classes])
 
     @jit(forceobj=True)
     def __call__(self, img):
-        img = img.reshape([28, 28, 1])  # Dimensions specific to MNist
+        img = img.reshape([28, 28, 1]).detach().numpy()  # Dimensions specific to MNist
+
         features = self.conv(img)
-        features = features.reshape([-1]).tolist()
+        features = features.reshape([-1]).tolist()  # do we need to do .tolist here?
+
         pred = self.dense(features)
+
         out = np.array(pred)
         return out
 
     def parameters(self):
         return self.conv.parameters() + self.dense.parameters()
+
 
 @jit(forceobj=True)
 def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
@@ -204,6 +210,7 @@ def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
     out = np.exp(x)
     out /= out.sum(-1)
     return out
+
 
 @jit(forceobj=True)
 def nll_loss(probabilities: Union[List, np.ndarray], cl: int) -> Value:
