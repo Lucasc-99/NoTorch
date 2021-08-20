@@ -11,9 +11,9 @@ from numba import jit
     
 """
 
+
 @jit(forceobj=True)
 def main():
-
     TRAIN_NUM = 1000
     TEST_NUM = 50
 
@@ -39,7 +39,7 @@ def main():
     #
     for count, (image_batch, cl_batch) in enumerate(train_dataloader):
 
-        print(f"\nRunning batch {count}:\n")
+        print(f"Running batch:" + str(count))
         classifier.zero_grad()
         probabilities = [softmax(classifier(img)) for img in tqdm(image_batch)]  # Forward pass with softmax
 
@@ -51,7 +51,7 @@ def main():
         batch_loss = sum(loss)
         batch_loss.backward()
 
-        print(f"Total loss at batch {count} is {loss}")
+        print("Total loss at batch" + str(count) + " is " + str(loss))
 
         # back-propagate
         for p in classifier.parameters():
@@ -67,8 +67,9 @@ def main():
             break
 
     accuracy = correct / TEST_NUM
-    print(f"Accuracy is {accuracy}")
+    print("Accuracy is:")
+    print(accuracy)
+
 
 if __name__ == '__main__':
     main()
-
