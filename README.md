@@ -1,7 +1,14 @@
 <h1>CNN</h1>
-A 'from scratch' implementation of a simple convolutional neural network (no pytorch/tensorflow) built only on Karpathy's micrograd differentiation engine
+A 'from scratch' implementation of a convolutional neural network library (no pytorch/tensorflow) built only on Karpathy's micrograd differentiation engine and NumPy
+ 
 
 https://github.com/karpathy/micrograd
+
+<h1>Implementaion Details</h1>
+This project allows users to create convolutional neural networks with an API similar to PyTorch. An example is provided in which a network is used to achieve high accuracy on Mnist. Also included are softmax and negative log likelihood loss functions
+
+<br>
+<br>
 
 <h1>Files</h1>
 

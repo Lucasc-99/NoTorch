@@ -34,7 +34,7 @@ def main():
 
     # Initialize classifier and learning rate hyper-parameter
     classifier = MNistClassifier()
-    learning_rate = .001
+    learning_rate = .01
 
     #
     # Training loop
