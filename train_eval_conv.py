@@ -2,6 +2,7 @@ from torchvision import datasets, transforms
 from conv import MNistClassifier, softmax, nll_loss
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+from numba import jit
 
 """
     NOTE: Torch is only used here to load Mnist data
@@ -10,9 +11,11 @@ from tqdm import tqdm
     
 """
 
-TRAIN_NUM = 1000
-TEST_NUM = 50
-if __name__ == '__main__':
+@jit(forceobj=True)
+def main():
+
+    TRAIN_NUM = 1000
+    TEST_NUM = 50
 
     #
     # Get data
@@ -65,3 +68,7 @@ if __name__ == '__main__':
 
     accuracy = correct / TEST_NUM
     print(f"Accuracy is {accuracy}")
+
+if __name__ == '__main__':
+    main()
+
