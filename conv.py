@@ -4,12 +4,18 @@ import numpy as np
 import random
 import sys
 from engine_extension import Value
+from numba import jit
 
 # recursive topological sort requires this
 sys.setrecursionlimit(10_000)
 
 
-def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=None):
+@jit(forceobj=True)
+def _conv(in_matrix,
+          kernel,
+          vertical_stride=1,
+          horizontal_stride=1,
+          padding: int = None):
     """
     Calculate the convolution of input matrix with kernel
     :param in_matrix: a matrix representing input
@@ -62,7 +68,7 @@ def _conv(in_matrix, kernel, vertical_stride=1, horizontal_stride=1, padding=Non
 
     return np.array(output)
 
-
+@jit(forceobj=True)
 def _build_random_kernel(k, d):
     """
     Build a convolutional kernel with random values,
@@ -91,6 +97,7 @@ class Conv2D(Module):
         self.activation_fun = None
         self.activation_fun = activation if activation else 'None'
 
+    @jit(forceobj=True)
     def __call__(self, x):  # return a 3 - dim array with output image of convolution for each kernel
         # Pass input matrix through each kernel
         out = np.dstack(
@@ -172,6 +179,7 @@ class MNistClassifier(Module):
         dense_size = 784  # 28 * 28
         self.dense = MLP(dense_size, [self.classes])
 
+    @jit(forceobj=True)
     def __call__(self, img):
         img = img.reshape([28, 28, 1])  # Dimensions specific to MNist
         features = self.conv(img)
@@ -183,7 +191,7 @@ class MNistClassifier(Module):
     def parameters(self):
         return self.conv.parameters() + self.dense.parameters()
 
-
+@jit(forceobj=True)
 def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
     """
     Softmax normalization function
@@ -197,7 +205,7 @@ def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
     out /= out.sum(-1)
     return out
 
-
+@jit(forceobj=True)
 def nll_loss(probabilities: Union[List, np.ndarray], cl: int) -> Value:
     """
     Negative Log Likelihood Loss function
@@ -205,4 +213,4 @@ def nll_loss(probabilities: Union[List, np.ndarray], cl: int) -> Value:
     :param cl: the index of the correct class
     :return: a loss value
     """
-    return (-1 * probabilities[cl].log()) if probabilities[cl] != 0 else probabilities**0
+    return (-1 * probabilities[cl].log()) if probabilities[cl] != 0 else probabilities ** 0

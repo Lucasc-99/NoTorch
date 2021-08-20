@@ -1,6 +1,7 @@
 from torchvision import datasets, transforms
 from conv import MNistClassifier, softmax, nll_loss
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 """
     NOTE: Torch is only used here to load Mnist data
@@ -34,11 +35,11 @@ if __name__ == '__main__':
     # Training loop
     #
     for count, (image_batch, cl_batch) in enumerate(train_dataloader):
-        classifier.zero_grad()
-        print("zero grad")
 
-        probabilities = [softmax(classifier(img)) for img in image_batch]  # Forward pass with softmax
-        print("batch forward completed")
+        print(f"\nRunning batch {count}:\n")
+        classifier.zero_grad()
+        probabilities = [softmax(classifier(img)) for img in tqdm(image_batch)]  # Forward pass with softmax
+
         exit(0)
         # Using Negative Log-Likelihood loss function
 
