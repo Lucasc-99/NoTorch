@@ -27,8 +27,8 @@ def _conv(in_matrix: np.ndarray,
     """
     assert vertical_stride * horizontal_stride > 0  # check for zero stride
 
-    # kernel = np.asarray(kernel)
-    # in_matrix = np.asarray(in_matrix)
+    kernel = np.asarray(kernel)
+    in_matrix = np.asarray(in_matrix)
 
     height, width = in_matrix.shape[:2]
 
@@ -183,7 +183,7 @@ class MNistClassifier(Module):
 
     @jit(forceobj=True)
     def __call__(self, img):
-        img = img.reshape([28, 28, 1]).detach().numpy()  # Dimensions specific to MNist
+        img = img.reshape([28, 28, 1])  # Dimensions specific to MNist
 
         features = self.conv(img)
         features = features.reshape([-1]).tolist()  # do we need to do .tolist here?
