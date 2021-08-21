@@ -16,7 +16,7 @@ from numba import jit
 def main():
     # MNist train has 60,000 samples
     TRAIN_NUM = 1000  # Number of training batches
-    BATCH_SIZE = 60  # Training minibatch size
+    BATCH_SIZE = 60  # Training mini-batch size
 
     TEST_NUM = 1000  # Number of test samples
 
