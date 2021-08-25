@@ -5,7 +5,16 @@ A 'from scratch' implementation of a convolutional neural network library (no py
 https://github.com/karpathy/micrograd
 
 <h1>Implementaion Details</h1>
-This project allows users to create convolutional neural networks with an API similar to PyTorch. An example is provided in which a network is used to achieve high accuracy on Mnist. Also included are softmax and negative log likelihood loss functions
+This project allows users to create convolutional neural networks with an API similar to PyTorch. An example is provided in which a network is used to achieve high accuracy on Mnist. Also included are softmax and negative log likelihood loss functions.
+
+```
+conv = ConvNet(in_channels=1,
+                            filters=[3],
+                            kernel_sizes=[5],
+                            activation='relu')
+```
+
+The above example creates a ConvNet with 3 5x5 kernels, taking 1 input channel, including relu as an activation function
 
 <br>
 <br>
