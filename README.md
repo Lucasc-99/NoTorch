@@ -10,12 +10,12 @@ This project allows users to create convolutional neural networks with an API si
 <br>
 <br>
 
-The following example creates a ConvNet with 3 5x5 kernels, 
+The following example creates a ConvNet with 2 convolutional layers, each with 3 5x5 filter kernels, 
 taking 1 input channel, and a ReLU activation function
 ```
 conv = ConvNet(in_channels=1,
-                            filters=[3],
-                            kernel_sizes=[5],
+                            filters=[3, 3],
+                            kernel_sizes=[5, 4],
                             activation='relu')
 ```
 
