@@ -15,7 +15,7 @@ taking 1 input channel, and a ReLU activation function
 ```
 conv = ConvNet(in_channels=1,
                             filters=[3, 3],
-                            kernel_sizes=[5, 4],
+                            kernel_sizes=[5, 5],
                             activation='relu')
 ```
 
