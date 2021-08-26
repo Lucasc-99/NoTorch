@@ -27,7 +27,7 @@ To do a forward pass using the network above, simply call it on an input image l
 
 
 ```
-image: np.ndarray # Get an image formatted as a NumPy array
+image: np.ndarray # Get an image formatted as a NumPy ndarray
 
 output = conv(image)
 
