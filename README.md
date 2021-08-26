@@ -4,7 +4,7 @@ A 'from scratch' implementation of a convolutional neural network library (no py
 
 https://github.com/karpathy/micrograd
 
-<h1>Implementaion Details</h1>
+<h1>Implementation Details</h1>
 This project allows users to create convolutional neural networks with an API similar to PyTorch. An example is provided in which a network is used to achieve high accuracy on Mnist. Also included are softmax and negative log likelihood loss functions.
 
 <br>
