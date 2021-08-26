@@ -11,7 +11,8 @@ This project allows users to create convolutional neural networks with an API si
 <br>
 
 The following example creates a ConvNet with 2 convolutional layers, each with 3 5x5 filter kernels, 
-taking 1 input channel, and a ReLU activation function
+taking 1 input channel, and a ReLU activation function.
+
 ```
 conv = ConvNet(in_channels=1,
                             filters=[3, 3],
@@ -19,6 +20,13 @@ conv = ConvNet(in_channels=1,
                             activation='relu')
 ```
 
+
+<br>
+<br>
+To do a forward pass using the network above, simply call it on an input image like this:
+```
+output = conv(image)
+```
 
 <br>
 <br>
