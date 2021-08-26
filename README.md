@@ -26,6 +26,8 @@ conv = ConvNet(in_channels=1,
 To do a forward pass using the network above, simply call it on an input image like this:
 
 ```
+image: np.ndarray # Get an image formatted as a NumPy array
+
 output = conv(image)
 
 ```
