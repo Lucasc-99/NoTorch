@@ -24,8 +24,10 @@ conv = ConvNet(in_channels=1,
 <br>
 <br>
 To do a forward pass using the network above, simply call it on an input image like this:
+
 ```
 output = conv(image)
+
 ```
 
 <br>
