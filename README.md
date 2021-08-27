@@ -1,7 +1,11 @@
 <h1>CNN</h1>
-A 'from scratch' implementation of a convolutional neural network library (no pytorch/tensorflow) built only on NumPy and modified version of Karpathy's micrograd differentiation engine which adds support for log, sigmoid, pow, rpow, e^x, >=, <= operations.
+A 'from scratch' implementation of a convolutional neural network library (no pytorch/tensorflow) built only on NumPy and Karpathy's micrograd 
+
+differentiation engine 
 
 https://github.com/karpathy/micrograd
+
+micrograd is modified in engine_extension.py to add support for log, sigmoid, pow, rpow, e^x, >=, <= operations.
 
 <h1>Implementation Details</h1>
 This project allows users to create convolutional neural networks with an API similar to PyTorch. An example is provided in which a network is used to achieve high accuracy on Mnist. Also included are softmax and negative log likelihood loss functions.
