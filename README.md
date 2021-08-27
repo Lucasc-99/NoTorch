@@ -1,5 +1,5 @@
 <h1>CNN</h1>
-A 'from scratch' implementation of a convolutional neural network library (no pytorch/tensorflow) built only on Karpathy's micrograd differentiation engine and NumPy
+A 'from scratch' implementation of a convolutional neural network library (no pytorch/tensorflow) built only on a modified version of Karpathy's micrograd differentiation engine and NumPy
  
 
 https://github.com/karpathy/micrograd
@@ -37,11 +37,11 @@ output = conv(image)
 
 <h1>Files</h1>
 
--test_conv.py: MNist training example
+test_conv.py: MNist training example
 
--train_eval_conv.py: full model training and evaluation
+train_eval_conv.py: full model training and evaluation
 
--conv.py: Contains Convolutional layer class (Conv2D), Convolutional NNetwork class, and an MNist Classifier. 
+conv.py: Contains Convolutional layer class (Conv2D), Convolutional NNetwork class, and an MNist Classifier. 
 Also contains negative-log likelyhood loss and softmax functions
 
--engine_extension.py: An extension of micrograd autodifferentiation to allow for power, log, exp, ==, >=, and sigmoid to be differentiable
+engine_extension.py: An extension of micrograd autodifferentiation to allow for power, log, exp, ==, >=, and sigmoid to be differentiable
