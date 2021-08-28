@@ -1,5 +1,5 @@
 <h1>CNN</h1>
-A 'from scratch' implementation of a convolutional neural network library (no pytorch/tensorflow) built only on NumPy and Karpathy's micrograd differentiation engine:
+A 'from scratch' implementation of a convolutional neural network library (no pytorch/tensorflow) built only on NumPy and Andrej Karpathy's micrograd differentiation engine:
 
 https://github.com/karpathy/micrograd
 
