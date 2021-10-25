@@ -6,13 +6,15 @@ https://github.com/karpathy/micrograd
 micrograd is modified in engine_extension.py to add support for log, sigmoid, pow, rpow, e^x, >=, <= operations.
 
 <h1>Implementation Details</h1>
-This project allows users to create convolutional neural networks like the one shown below with an API similar to PyTorch. An example is provided in which a network is used to achieve high accuracy on Mnist. Also included are softmax and negative log likelihood loss functions.
+This project allows users to create convolutional neural networks like the one shown below with an API similar to PyTorch.
 
 
 ![alt text](./conv_net_example.png)
 
 
-An example classifier for Mnist hand-written digit recognition is provided in conv.py
+
+An example classifier for Mnist hand-written digit recognition is provided in conv.py.
+This network consists of 3 convolutional layers and a single dense classification layer.
 
 
 <br>
