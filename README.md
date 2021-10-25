@@ -3,8 +3,6 @@ A 'from scratch' implementation of a convolutional neural network library (no py
 
 https://github.com/karpathy/micrograd
 
-micrograd is modified in engine_extension.py to add support for log, sigmoid, pow, rpow, e^x, >=, <= operations.
-
 <h1>Implementation Details</h1>
 This project allows users to create convolutional neural networks like the one shown below with an API similar to PyTorch.
 
@@ -48,4 +46,4 @@ train_eval_conv.py: full model training and evaluation
 conv.py: contains Convolutional layer class (Conv2D), Convolutional NNetwork class, and an MNist Classifier. 
 Also contains negative-log likelyhood loss and softmax functions
 
-engine_extension.py: extended micrograd Value class
+engine_extension.py: extends micrograd to add support for log, sigmoid, pow, rpow, e^x, >=, <= operations.
