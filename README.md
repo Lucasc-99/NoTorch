@@ -13,8 +13,7 @@ This project allows users to create convolutional neural networks like the one s
 
 
 
-An example classifier for Mnist hand-written digit recognition is provided in conv.py.
-This network consists of 3 convolutional layers and a single dense classification layer.
+An example classifier for Mnist hand-written digit recognition (smaller than the one above) is provided in conv.py
 
 <br>
 <h1>How to Use</h1>
