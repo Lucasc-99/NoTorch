@@ -7,7 +7,7 @@ micrograd is modified in engine_extension.py to add support for log, sigmoid, po
 
 <h1>Implementation Details</h1>
 This project allows users to create convolutional neural networks with an API similar to PyTorch. An example is provided in which a network is used to achieve high accuracy on Mnist. Also included are softmax and negative log likelihood loss functions.
-![alt text](conv_net_example.png)
+![alt text](https://github.com/Lucasc-99/cnn/conv_example.png)
 <br>
 <br>
 
