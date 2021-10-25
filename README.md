@@ -16,30 +16,25 @@ This project allows users to create convolutional neural networks like the one s
 An example classifier for Mnist hand-written digit recognition is provided in conv.py.
 This network consists of 3 convolutional layers and a single dense classification layer.
 
+<br>
+<h1>How to Use</h1>
+To do a forward pass using the network above, simply call it on an input image like this:
 
-<br>
-<br>
 
 The following example creates a ConvNet with 2 convolutional layers, each with 3 5x5 filter kernels, 
 taking 1 input channel, and a ReLU activation function.
 
 ```
+from conv import ConvNet
+
 conv = ConvNet(in_channels=1,
                             filters=[3, 3],
                             kernel_sizes=[5, 5],
                             activation='relu')
-```
 
-
-<br>
-<br>
-To do a forward pass using the network above, simply call it on an input image like this:
-
-
-```
 image: np.ndarray # Get an image formatted as a NumPy ndarray
 
-output = conv(image)
+output = conv(image) # this gives us features which can be used for classification
 
 ```
 
