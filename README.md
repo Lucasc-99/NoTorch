@@ -3,34 +3,35 @@ A 'from scratch' implementation of a convolutional neural network library (no py
 
 https://github.com/karpathy/micrograd
 
-micrograd is modified in engine_extension.py to add support for log, sigmoid, pow, rpow, e^x, >=, <= operations.
-
 <h1>Implementation Details</h1>
-This project allows users to create convolutional neural networks with an API similar to PyTorch. An example is provided in which a network is used to achieve high accuracy on Mnist. Also included are softmax and negative log likelihood loss functions.
-![alt text](conv_net_example.png)
+This project allows users to create convolutional neural networks like the one shown below with an API similar to PyTorch.
+
+
+![alt text](./conv_net_example.png)
+
+
+
+An example classifier for Mnist hand-written digit recognition (smaller than the one above) is provided in conv.py
+
 <br>
-<br>
+<h1>How to Use</h1>
+To do a forward pass using the network above, simply call it on an input image like this:
+
 
 The following example creates a ConvNet with 2 convolutional layers, each with 3 5x5 filter kernels, 
 taking 1 input channel, and a ReLU activation function.
 
 ```
+from conv import ConvNet
+
 conv = ConvNet(in_channels=1,
                             filters=[3, 3],
                             kernel_sizes=[5, 5],
                             activation='relu')
-```
 
-
-<br>
-<br>
-To do a forward pass using the network above, simply call it on an input image like this:
-
-
-```
 image: np.ndarray # Get an image formatted as a NumPy ndarray
 
-output = conv(image)
+output = conv(image) # this gives us features which can be used for classification
 
 ```
 
@@ -45,4 +46,4 @@ train_eval_conv.py: full model training and evaluation
 conv.py: contains Convolutional layer class (Conv2D), Convolutional NNetwork class, and an MNist Classifier. 
 Also contains negative-log likelyhood loss and softmax functions
 
-engine_extension.py: extended micrograd Value class
+engine_extension.py: extends micrograd to add support for log, sigmoid, pow, rpow, e^x, >=, <= operations.
