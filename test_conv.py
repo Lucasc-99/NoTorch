@@ -2,7 +2,6 @@ from torchvision import datasets, transforms
 from conv import MNistClassifier, softmax, nll_loss
 from matplotlib import pyplot as plt
 
-
 """
     An example of a single forward 
     and backward pass on the first image in MNist
@@ -35,17 +34,22 @@ loss.backward()
 
 params = classifier.parameters()
 
-# Visualize gradients
-
-grad_y = [p.grad for p in params]
-grad_x = [p.data for p in params]
-
-# plt.scatter(grad_x, grad_y)
-# plt.show()
-
 # Update parameters
 learning_rate = .001
 for p in params:
     p.data -= learning_rate * p.grad
 
+
+# Visualize Gradients
+
+grad_y = [p.grad for p in params]
+grad_x = [i for i in range(len(grad_y))]
+s = [2] * len(grad_y)
+
+plt.xlabel('Parameter Index')
+plt.ylabel('Parameter Gradient')
+plt.title('CNN Model Gradients')
+
+plt.scatter(grad_x, grad_y, s)
+plt.show()
 
