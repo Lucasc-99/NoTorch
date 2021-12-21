@@ -86,6 +86,9 @@ def _build_random_kernel(k, d):
 
 
 class Conv2D(Module):
+    """
+    Convolutional Layer Module
+    """
     def __init__(self, in_channels, out_filters, kernel_size, stride_v=1, stride_h=1, padding=0, activation=None):
         self.nin = in_channels
         self.nout = out_filters
