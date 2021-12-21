@@ -1,7 +1,13 @@
 from functools import total_ordering
-
 from micrograd.engine import Value
 import math
+
+"""
+An extension of micrograd: an auto-differentiation engine
+
+Adds support for differentiable power, sigmoid, log, exp, >=, and == operations
+
+"""
 
 
 def __rpow__(self, other):
