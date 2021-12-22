@@ -42,6 +42,11 @@ Visualizing gradients from a forward pass on a single image:
 $ python test_conv.py
 ```
 
+Full training and testing:
+```
+$ python train_eval_conv.py
+```
+
 <br>
 <h1>Dependencies</h1>
 
