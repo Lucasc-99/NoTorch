@@ -35,11 +35,17 @@ output = conv(image) # this gives us features which can be used for classificati
 
 ```
 
+
+Visualizing gradients from a forward pass on a single image:
+
+```$ python test_conv.py
+```
+
 <br>
 
 <h1>Files</h1>
 
-test_conv.py: MNist training example
+test_conv.py: single MNist image prediction example, with gradient visualization
 
 train_eval_conv.py: full model training and evaluation
 
