@@ -45,11 +45,11 @@ $ python test_conv.py
 <br>
 <h1>Dependencies</h1>
 
-NumPy  
-micrograd  
-numba  
-matplotlib  
-torchvision -> used exclusively for loading MNist data  
+NumPy - https://numpy.org/install/  
+micrograd - https://github.com/karpathy/micrograd  
+numba - https://numba.pydata.org/numba-doc/latest/user/installing.html  
+matplotlib - https://matplotlib.org/  
+torchvision (used exclusively for loading MNist data) - https://pypi.org/project/torchvision/  
 
 <br>
 
