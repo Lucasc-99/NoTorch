@@ -43,6 +43,16 @@ $ python test_conv.py
 ```
 
 <br>
+<h1>Dependencies</h1>
+
+NumPy
+micrograd
+numba
+matplotlib
+torchvision -> used exclusively for loading MNist data
+
+<br>
+
 
 <h1>Files</h1>
 
