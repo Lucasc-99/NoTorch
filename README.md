@@ -45,11 +45,11 @@ $ python test_conv.py
 <br>
 <h1>Dependencies</h1>
 
-NumPy \n
-micrograd \n
-numba \n
-matplotlib \n
-torchvision -> used exclusively for loading MNist data \n
+NumPy  
+micrograd  
+numba  
+matplotlib  
+torchvision -> used exclusively for loading MNist data  
 
 <br>
 
