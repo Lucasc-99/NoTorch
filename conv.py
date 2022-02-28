@@ -4,13 +4,11 @@ import numpy as np
 import random
 import sys
 from engine_extension import Value
-from numba import jit
 
 # recursive topological sort requires this
 sys.setrecursionlimit(10_000)
 
 
-@jit(forceobj=True)
 def _conv(in_matrix: np.ndarray,
           kernel: np.ndarray,
           vertical_stride=1,
@@ -69,7 +67,6 @@ def _conv(in_matrix: np.ndarray,
     return np.array(output)
 
 
-@jit(forceobj=True)
 def _build_random_kernel(k, d):
     """
     Build a convolutional kernel with random values,
@@ -101,7 +98,7 @@ class Conv2D(Module):
         self.activation_fun = None
         self.activation_fun = activation if activation else 'None'
 
-    @jit(forceobj=True)
+
     def __call__(self, x):  # return a 3 - dim array with output image of convolution for each kernel
         # Pass input matrix through each kernel
         out = np.dstack(
@@ -200,7 +197,6 @@ class MNistClassifier(Module):
         return self.conv.parameters() + self.dense.parameters()
 
 
-@jit(forceobj=True)
 def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
     """
     Softmax normalization function
@@ -215,7 +211,6 @@ def softmax(in_vector: Union[List, np.ndarray]) -> np.ndarray:
     return out
 
 
-@jit(forceobj=True)
 def nll_loss(probabilities: Union[List, np.ndarray], cl: int) -> Value:
     """
     Negative Log Likelihood Loss function
