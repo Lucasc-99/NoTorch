@@ -1,5 +1,5 @@
 from torchvision import datasets, transforms
-from conv import MNistClassifier, softmax, nll_loss
+from NoTorch.conv import MNistClassifier, softmax, nll_loss
 from matplotlib import pyplot as plt
 
 """
