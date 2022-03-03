@@ -4,9 +4,9 @@ import numpy as np
 
 class Tensor:
     """
-    N-dimensional array with differentiable operations
+    Matrix with differentiable operations
 
-    supports: +, *, /, **, log
+    supports: +, -, *, /, **, log, exp, relu, sigmoid
 
     Refactored from https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
     """
