@@ -22,10 +22,9 @@ class Dense(Module):
         self.bias = Tensor(np.zeros(shape=[out_neurons]), ())
         self.batch_size = batch_size
 
-
     def __call__(self, x: Tensor):
         # TODO: Batching
-        return (x*self.weight + self.bias).sigmoid()
+        return (x * self.weight + self.bias).sigmoid()
 
     def parameters(self):
         return [self.weight, self.bias]
@@ -37,15 +36,24 @@ class MLP(Module):
     """
 
     def __init__(self, in_features: int, out_features: int, hidden_sizes: list):
-        
+
         if len(hidden_sizes) == 0:
             self.layers = [Dense(in_features, out_features)]
-        
+
+        elif len(hidden_sizes) == 1:
+            self.layers = [
+                Dense(in_features, hidden_sizes[0]),
+                Dense(hidden_sizes[0], out_features),
+            ]
+
         else:
             self.layers = [Dense(in_features, hidden_sizes[0])]
-            self.layers += [Dense(hidden_sizes[i], hidden_sizes[i+1]) for i in range()]
+            self.layers += [
+                Dense(hidden_sizes[i], hidden_sizes[i + 1])
+                for i in range(len(hidden_sizes) - 1)
+            ]
             self.layers += [Dense(hidden_sizes[-1], out_features)]
-        
+
     def __call__(self, x):
         for layer in self.layers:
             x = layer(x)
