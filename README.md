@@ -14,7 +14,6 @@ The structure of the grad engine in this project is similar to micrograd, with a
 
 Coming soon
 
-[comment]: <> (![alt text](./img/conv_net_example.png))
 
 
 <br>
