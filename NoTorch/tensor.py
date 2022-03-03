@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Union
 import numpy as np
 
 
@@ -7,10 +7,15 @@ class Tensor:
     N-dimensional array with differentiable operations
 
     supports: +, *, /, **, log
+
+    Refactored from https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
     """
 
-    def __init__(self, data: np.ndarray, _children: Tuple = ()):
-        self.data = data
+    def __init__(
+        self, data: Union[np.ndarray, int, float, list], _children: Tuple = ()
+    ):
+        self.data = data if isinstance(data, np.ndarray) else np.array(data)
+
         self._children = _children
 
         self.grad = np.zeros_like(data, dtype=data.dtype)
@@ -108,6 +113,46 @@ class Tensor:
 
     def __eq__(self, other):
         return self.data == Tensor._validate_input(other)
+
+    def __neg__(self):  # -self
+        return self * -1
+
+    def __radd__(self, other):
+        return self + other
+
+    def __sub__(self, other):
+        return self + (-other)
+
+    def __rsub__(self, other):
+        return other + (-self)
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __truediv__(self, other):
+        return self * other**-1
+
+    def __rtruediv__(self, other):
+        return other * self**-1
+
+
+
+    def backward(self):
+        """
+        Recursive topological sort of the computation graph,
+        Followed by 
+        """
+        nodes = []
+        visited = set()
+
+        def build_topo(v):
+            if v not in visited:
+                visited.add(v)
+                for child in v._prev:
+                    build_topo(child)
+                nodes.append(v)
+        build_topo(self)
+
 
     @staticmethod
     def _validate_input(input):
