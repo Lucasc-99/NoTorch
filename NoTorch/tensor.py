@@ -2,12 +2,6 @@ from typing import Tuple
 import numpy as np
 
 
-"""
-Refactored from: https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
-
-"""
-
-
 class Tensor:
     """
     N-dimensional array with differentiable operations

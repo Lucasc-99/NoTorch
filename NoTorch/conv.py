@@ -1,9 +1,8 @@
-from micrograd.nn import Module, MLP
 from typing import List, Union
 import numpy as np
 import random
 import sys
-from tensor import Tensor
+from NoTorch.tensor import Tensor
 
 
 
