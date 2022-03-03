@@ -9,7 +9,7 @@ class Tensor:
     supports: +, *, /, **, log
     """
 
-    def __init__(self, data: np.ndarray, _children: Tuple):
+    def __init__(self, data: np.ndarray, _children: Tuple = ()):
         self.data = data
         self._children = _children
 
