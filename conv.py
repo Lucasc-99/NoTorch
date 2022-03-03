@@ -3,7 +3,7 @@ from typing import List, Union
 import numpy as np
 import random
 import sys
-from engine import Value
+from tensor import Tensor
 
 # recursive topological sort requires this
 sys.setrecursionlimit(10_000)

@@ -1,4 +1,3 @@
-import math
 from typing import Tuple
 import numpy as np
 
@@ -11,7 +10,9 @@ Refactored from: https://github.com/karpathy/micrograd/blob/master/micrograd/eng
 
 class Tensor:
     """
-    Stores an n-dimensional array and its gradient
+    N-dimensional array with differentiable operations
+
+    supports: +, *, /, **, log
     """
 
     def __init__(self, data: np.ndarray, _children: Tuple):
@@ -24,7 +25,7 @@ class Tensor:
 
     def __add__(self, other):
 
-        other: Tensor = self._validate_input(other)
+        other: Tensor = Tensor._validate_input(other)
 
         out = Tensor(self.data + other.data, (self, other))
 
@@ -38,7 +39,7 @@ class Tensor:
 
     def __mul__(self, other):
 
-        other: Tensor = self._validate_input(other)
+        other: Tensor = Tensor._validate_input(other)
 
         out = Tensor(self.data * other.data, (self, other))
 
@@ -50,7 +51,7 @@ class Tensor:
 
     def __pow__(self, other):
 
-        other: Tensor = self._validate_input(other)
+        other: Tensor = Tensor._validate_input(other)
 
         out = Tensor(self.data**other.data, (self, other))
 
@@ -68,7 +69,7 @@ class Tensor:
         return out
 
     def __rpow__(self, other):
-        other: Tensor = self._validate_input(other)
+        other: Tensor = Tensor._validate_input(other)
 
         return other**self
 
@@ -77,13 +78,13 @@ class Tensor:
         out = Tensor(np.exp(self.data) / (np.exp(self.data) + 1), (self,))
 
         def _backward():
-            self.grad += np.exp(self.data) / ((np.exp + 1) * (np.exp(self.data) + 1))
+            self.grad += np.exp(self.data) / ((np.exp + 1) * (np.exp(self.data) + 1)) * out.grad
 
         out._backward = _backward
 
         return out
 
-    def log(self, **kwargs):
+    def log(self):
         out = Tensor(np.log(self.data), (self,), f"log")
 
         def _backward():
@@ -93,17 +94,14 @@ class Tensor:
 
         return out
 
-    def exp(self, *args, **kwargs):
-        return math.e**self
-
     def __ge__(self, other):
-        return self.data >= (other.data if isinstance(other, Tensor) else other)
+        return self.data >= Tensor._validate_input(other)
 
     def __eq__(self, other):
-        return self.data == (other.data if isinstance(other, Tensor) else other)
+        return self.data == Tensor._validate_input(other)
 
     @staticmethod
-    def _validate_input(self, input):
+    def _validate_input(input):
 
         if isinstance(input, np.ndarray):
             return Tensor(input, ())
