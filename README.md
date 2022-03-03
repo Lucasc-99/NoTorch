@@ -2,8 +2,9 @@
 
 BROKEN FOR NOW
 
-A 'from scratch' implementation of a deep learning library (no pytorch/tensorflow) built only on NumPy
-and heavily inspired by and based on:
+A 'from scratch' implementation of a deep learning library (no pytorch/tensorflow) built only on NumPy.
+
+Heavily inspired by and based on:
 
 https://github.com/karpathy/micrograd
 
