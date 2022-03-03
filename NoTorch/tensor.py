@@ -44,6 +44,8 @@ class Tensor:
             self.grad += other.data * out.grad
             other.grad += self.data * out.grad
 
+        out._backward = _backward
+
         return out
 
     def __pow__(self, other):
