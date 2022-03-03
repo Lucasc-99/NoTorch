@@ -6,8 +6,9 @@ Heavily inspired by and based on:
 
 https://github.com/karpathy/micrograd
 
+Just like micrograd, this project contains a gradient engine and a small neural network library
 
-The structure of this project, with a key difference: 
+Additional features include:
 
 - Differentiable operations on matrices, instead of scalars
 - log, exp, sigmoid
