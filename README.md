@@ -11,7 +11,7 @@ https://github.com/karpathy/micrograd
 This project allows users to create convolutional neural networks like the one shown below with an API similar to PyTorch.
 
 
-![alt text](./conv_net_example.png)
+![alt text](./img/conv_net_example.png)
 
 
 
