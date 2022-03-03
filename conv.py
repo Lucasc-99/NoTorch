@@ -5,6 +5,20 @@ import random
 import sys
 from tensor import Tensor
 
+
+
+
+"""
+
+Deprecated
+
+"""
+
+
+
+
+
+
 # recursive topological sort requires this
 sys.setrecursionlimit(10_000)
 
