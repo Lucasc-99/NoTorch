@@ -98,7 +98,7 @@ class Tensor:
 
     def relu(self):
         out = Tensor(
-            np.zeros_like(self.data) if not np.any(self.data) else self.data, (self)
+            self.data * (self.data > 0), (self,)
         )
 
         def _backward():
