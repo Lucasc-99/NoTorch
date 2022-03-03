@@ -7,7 +7,16 @@ Heavily inspired by and based on:
 https://github.com/karpathy/micrograd
 
 
-The structure of the grad engine in this project is similar to micrograd, with a key difference: differentiable operations with matrices instead of scalars
+The structure of this project, with a key difference: 
+
+- Differentiable operations on matrices, instead of scalars
+- log, exp, sigmoid
+
+IN PROGRESS:
+
+- Convolutional layers for CNN's
+- Attention layers for Transformers
+- GPU support via CuPy
 
 
 <h1>Implementation Details</h1>
