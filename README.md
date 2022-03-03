@@ -7,6 +7,10 @@ and heavily inspired by and based on:
 
 https://github.com/karpathy/micrograd
 
+
+The structure of the grad engine in this project is similar to micrograd, with a key difference: differentiable operations with matrices instead of scalars
+
+
 <h1>Implementation Details</h1>
 This project allows users to create convolutional neural networks like the one shown below with an API similar to PyTorch.
 
