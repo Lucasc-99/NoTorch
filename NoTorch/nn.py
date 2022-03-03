@@ -24,7 +24,15 @@ class Dense(Module):
 
     def __call__(self, x: Tensor):
         # TODO: Batching
-        return (x * self.weight + self.bias).sigmoid()
+        print(x)
+        print(self.weight)
+        print(self.bias)
+
+        out =  (x * self.weight + self.bias).sigmoid()
+        print("Calculation succesful")
+        print(out)
+        return out
+        
 
     def parameters(self):
         return [self.weight, self.bias]
@@ -62,5 +70,5 @@ class MLP(Module):
     def parameters(self):
         params = []
         for layer in self.layers:
-            params += layer.parameters
+            params += layer.parameters()
         return params

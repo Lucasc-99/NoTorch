@@ -162,7 +162,7 @@ class Tensor:
 
 
     def __repr__(self):
-        return f'Tensor with val: {self.data} and grad {self.grad}'
+        return f'Tensor with val {self.data} and grad {self.grad}'
 
     @staticmethod
     def _validate_input(input):
