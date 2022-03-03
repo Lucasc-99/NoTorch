@@ -52,10 +52,13 @@ class Tensor:
         def _backward():
             self.grad += (other.data * self.data ** (other.data - 1)) * out.grad
 
-            # True if other is not zeros
+            # may cause log(0) err
             if np.any(other.data):
-                other.grad += (
-                    (self.data**other.data) * np.log(np.abs(other.data)) * out.grad
+                mask = other.data > 0
+                other.grad[mask] += (
+                    (self.data[mask] ** other.data[mask])
+                    * np.log(np.abs(other.data[mask]))
+                    * out.grad[mask]
                 )
 
         out._backward = _backward
@@ -72,7 +75,9 @@ class Tensor:
         out = Tensor(np.exp(self.data) / (np.exp(self.data) + 1), (self,))
 
         def _backward():
-            self.grad += np.exp(self.data) / ((np.exp + 1) * (np.exp(self.data) + 1)) * out.grad
+            self.grad += (
+                np.exp(self.data) / ((np.exp + 1) * (np.exp(self.data) + 1)) * out.grad
+            )
 
         out._backward = _backward
 
@@ -87,6 +92,16 @@ class Tensor:
         out._backward = _backward
 
         return out
+
+    def relu(self):
+        out = Tensor(
+            np.zeros_like(self.data) if not np.any(self.data) else self.data, (self)
+        )
+
+        def _backward():
+            self.grad += (out.data > 0) * out.grad
+
+        out._backward = _backward
 
     def __ge__(self, other):
         return self.data >= Tensor._validate_input(other)
