@@ -17,13 +17,15 @@ class Dense(Module):
     Fully Connected Layer with sigmoid activation
     """
 
-    def __init__(self, in_neurons: int, out_neurons: int):
-        self.weight = Tensor(np.zeros(shape=[1, in_neurons, out_neurons]), ())
-        self.bias = Tensor(np.zeros(shape=[1, out_neurons]), ())
+    def __init__(self, in_neurons: int, out_neurons: int, batch_size: int = 1):
+        self.weight = Tensor(np.zeros(shape=[in_neurons, out_neurons]), ())
+        self.bias = Tensor(np.zeros(shape=[out_neurons]), ())
+        self.batch_size = batch_size
+
 
     def __call__(self, x: Tensor):
-        
-        return x.sigmoid()
+        # TODO: Batching
+        return (x*self.weight + self.bias).sigmoid()
 
     def parameters(self):
         return [self.weight, self.bias]

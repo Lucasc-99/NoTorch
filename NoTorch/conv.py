@@ -5,17 +5,11 @@ import sys
 from NoTorch.tensor import Tensor
 
 
-
-
 """
 
-Deprecated
+Broken for now
 
 """
-
-
-
-
 
 
 # recursive topological sort requires this
