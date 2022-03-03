@@ -1,14 +1,8 @@
 from ast import Mod
 from typing import Callable
-from tensor import Tensor
+from NoTorch.tensor import Tensor
 
 import numpy as np
-
-
-"""
-Refactored from: https://github.com/karpathy/micrograd/blob/master/micrograd/nn.py
-
-"""
 
 
 class Module:
@@ -28,6 +22,19 @@ class Dense(Module):
     def __init__(self, in_neurons: int, out_neurons: int, activation: Callable):
         self.weight = Tensor(np.zeros(in_neurons), ())
         self.bias = Tensor(np.zeros(out_neurons), ())
+        self.activation = activation
     
+    def __call__(self, x: Tensor):
+        pass
+
+
     def parameters(self):
         return [self.weight, self.bias]
+
+class ReLU(Module):
+    """
+    Rectified Linear Unit (ReLU) activation function
+    """
+
+    def __call__(self, x: Tensor):
+        pass

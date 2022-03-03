@@ -3,10 +3,7 @@ from NoTorch.conv import MNistClassifier, softmax, nll_loss
 from matplotlib import pyplot as plt
 
 """
-    An example of a single forward 
-    and backward pass on the first image in MNist
-    
-    TODO: convert this to a notebook
+    Broken for now
 """
 
 # Load the data: MNIST digit classification

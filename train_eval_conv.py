@@ -2,17 +2,13 @@ from torchvision import datasets, transforms
 from NoTorch.conv import MNistClassifier, softmax, nll_loss
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from numba import jit
 
 """
-    NOTE: Torch is only used here to load Mnist data
-
-    Full training on MNist and evalutation
+    Broken for now
     
 """
 
 
-@jit(forceobj=True)
 def main():
     # MNist train has 60,000 samples
     TRAIN_NUM = 1000  # Number of training batches

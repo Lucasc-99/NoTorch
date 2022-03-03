@@ -1,5 +1,9 @@
-<h1>Py-CNN</h1>
-A 'from scratch' implementation of a convolutional neural network library (no pytorch/tensorflow) built only on NumPy and Andrej Karpathy's micrograd differentiation engine:
+<h1>NoTorch</h1>
+
+BROKEN FOR NOW
+
+A 'from scratch' implementation of a deep learning library (no pytorch/tensorflow) built only on NumPy
+and heavily based on:
 
 https://github.com/karpathy/micrograd
 
