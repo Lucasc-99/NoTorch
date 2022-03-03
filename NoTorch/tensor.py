@@ -15,11 +15,9 @@ class Tensor:
         self, data: Union[np.ndarray, int, float, list], _children: Tuple = ()
     ):
         self.data = data if isinstance(data, np.ndarray) else np.array(data)
-
         self._children = _children
+        self.grad = np.zeros_like(data)
 
-        self.grad = np.zeros_like(data, dtype=data.dtype)
-        self._prev = set(_children)
         self.backward = None
 
     def __add__(self, other):
@@ -139,20 +137,28 @@ class Tensor:
 
     def backward(self):
         """
-        Recursive topological sort of the computation graph,
-        Followed by 
+        Call _backward() on the computation graph,
+        in topological order
         """
         nodes = []
         visited = set()
 
-        def build_topo(v):
+        def topological_sort(v):
             if v not in visited:
                 visited.add(v)
-                for child in v._prev:
-                    build_topo(child)
+                for child in set(v._children):
+                    topological_sort(child)
                 nodes.append(v)
-        build_topo(self)
 
+        topological_sort(self)
+
+        self.grad = np.ones_like(self.grad)
+        for v in reversed(nodes):
+            v._backward()
+
+
+    def __repr__(self):
+        return f'Tensor with val: {self.data} and grad {self.grad}'
 
     @staticmethod
     def _validate_input(input):
