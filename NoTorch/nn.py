@@ -29,3 +29,24 @@ class Dense(Module):
 
     def parameters(self):
         return [self.weight, self.bias]
+
+
+class MLP(Module):
+    """
+    A basic MLP, with a variable number of hidden layers and sizes
+    """
+
+    def __init__(self, in_features: int, out_features: int, hidden_sizes: list):
+        
+        if len(hidden_sizes) == 0:
+            self.layers = [Dense(in_features, out_features)]
+        
+        else:
+            self.layers = [Dense(in_features, hidden_sizes[0])]
+            self.layers += [Dense(hidden_sizes[i], hidden_sizes[i+1]) for i in range()]
+            self.layers += [Dense(hidden_sizes[-1], out_features)]
+        
+    def __call__(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        return x
