@@ -106,6 +106,8 @@ class Tensor:
 
         out._backward = _backward
 
+        return out
+
     def __ge__(self, other):
         return self.data >= Tensor._validate_input(other)
 
