@@ -1,5 +1,5 @@
 from NoTorch.tensor import Tensor
-
+import math
 import numpy as np
 
 
@@ -18,25 +18,24 @@ class Dense(Module):
     """
 
     def __init__(self, in_neurons: int, out_neurons: int, batch_size: int = 1):
-        self.weight = Tensor(np.zeros(shape=[in_neurons, out_neurons]), ())
-        self.bias = Tensor(np.zeros(shape=[out_neurons]), ())
+        self.in_neurons = in_neurons
+        self.out_neurons = out_neurons
+        self.weights = [
+            Tensor(np.random.randn(in_neurons) * math.sqrt(2.0/in_neurons) )  for _ in range(out_neurons)
+        ]
+        self.bias = Tensor(np.zeros(shape=[out_neurons]))
         self.batch_size = batch_size
 
-    def __call__(self, x: Tensor):
-        # TODO: Batching
-        print(x)
-        print(self.weight)
-        print(self.bias)
-
-        out =  (x * self.weight + self.bias).sigmoid()
-        print("Calculation succesful")
-        print(out)
-        return out
+    # TODO: Batching
+    def __call__(self, x):
+        return Tensor.cat1d([Tensor.sum1d(x * weight) for weight in self.weights]) + self.bias
         
 
     def parameters(self):
-        return [self.weight, self.bias]
+        return [self.bias] + [weight for weight in self.weights]
 
+    def __repr__(self):
+        return f'Dense layer with in: {self.in_neurons} out: {self.out_neurons}'
 
 class MLP(Module):
     """

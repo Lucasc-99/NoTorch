@@ -2,6 +2,7 @@ from typing import Union
 import numpy as np
 import itertools
 
+
 class Tensor:
     """
     Matrix with differentiable operations
@@ -16,14 +17,12 @@ class Tensor:
     def __init__(
         self, data: Union[np.ndarray, int, float, list], _children: tuple = ()
     ):
-        assert isinstance(data, (np.ndarray, int, float, list))
-        self.data = data if isinstance(data, np.ndarray) else np.array(data)
-
+        self.data = Tensor._validate_init_input(data)
         self.id = next(self.unique_id)
         self._children = _children
-        self.grad = np.zeros_like(data)
+        self.grad = np.zeros_like(self.data)
         self._prev = set(_children)
-        self._backward = lambda : None
+        self._backward = lambda: None
 
     def __add__(self, other):
 
@@ -57,20 +56,21 @@ class Tensor:
 
         other: Tensor = Tensor._validate_input(other)
 
-        out = Tensor(self.data**other.data, (self, other))
+        out = Tensor(self.data**other.data, (self,)) # Add other to children when below is fixed
 
         def _backward():
             self.grad += (other.data * self.data ** (other.data - 1)) * out.grad
 
-            # TODO: robust test on this, may cause log(0) err
+            # TODO: fix this, exp grad not implemented as of now
+            """
             if np.any(other.data):
-                mask = other.data > 0
-                other.grad[mask] += (
-                    (self.data[mask] ** other.data[mask])
-                    * np.log(np.abs(other.data[mask]))
-                    * out.grad[mask]
+                temp = other.grad + (
+                    (self.data ** other.data)
+                    * np.ma.log(np.abs(other.data))
+                    * out.grad
                 )
-
+                other.grad = temp
+            """
         out._backward = _backward
 
         return out
@@ -90,14 +90,12 @@ class Tensor:
 
         return out
 
-
     def sigmoid(self):
-
         out = Tensor(np.exp(self.data) / (np.exp(self.data) + 1), (self,))
 
         def _backward():
             self.grad += (
-                np.exp(self.data) / ((np.exp + 1) * (np.exp(self.data) + 1)) * out.grad
+                np.exp(self.data) / ((np.exp(self.data) + 1) * (np.exp(self.data) + 1)) * out.grad
             )
 
         out._backward = _backward
@@ -160,7 +158,7 @@ class Tensor:
 
         topological_sort(self)
 
-        self.grad = np.ones_like(self.grad)
+        self.grad = np.ones_like(self.grad, dtype=np.single)
         for v in reversed(nodes):
             v._backward()
 
@@ -189,7 +187,7 @@ class Tensor:
         out._backward = _backward
 
         return out
-        
+
     @staticmethod
     def cat1d(tensors: list):
         """
@@ -197,15 +195,32 @@ class Tensor:
 
         TODO: fix and input checking
         """
-        out = Tensor(np.array([t.data for t in tensors]), tuple(tensors))
+        out = Tensor(np.concatenate([t.data for t in tensors], axis=0), tuple(tensors))
 
         def _backward():
             for i in range(len(tensors)):
                 tensors[i].grad += out.grad[i]
-        
+
         out._backward = _backward
-        
+
         return out
+
+    @staticmethod
+    def _validate_init_input(input):
+        assert isinstance(input, (np.ndarray, int, float, list)), f"{type(input)}"
+
+        if isinstance(input, int):
+            return np.array([float(input)])
+
+        elif isinstance(input, float):
+            return np.array([input])
+        
+        elif isinstance(input, list):
+            return np.array([float(d) for d in input])
+        
+        elif isinstance(input, np.ndarray):
+            assert input.dtype in (np.float, np.single, np.double), "dtype must be float"
+            return input
 
     @staticmethod
     def _validate_input(input):
@@ -217,7 +232,7 @@ class Tensor:
             return input
 
         elif isinstance(input, (int, float, list)):
-            return Tensor(np.array(input), ())
+            return Tensor(input, ())
 
         else:
             raise NotImplementedError(
