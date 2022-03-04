@@ -14,7 +14,10 @@ class Tensor:
     def __init__(
         self, data: Union[np.ndarray, int, float, list], _children: Tuple = ()
     ):
+        assert isinstance(data, (np.ndarray, int, float, list))
         self.data = data if isinstance(data, np.ndarray) else np.array(data)
+
+
         self._children = _children
         self.grad = np.zeros_like(data)
 
@@ -30,7 +33,7 @@ class Tensor:
             self.grad += out.grad
             other.grad += out.grad
 
-        out.backward = _backward
+        out._backward = _backward
 
         return out
 
@@ -75,6 +78,17 @@ class Tensor:
 
         return other**self
 
+    def log(self):
+        out = Tensor(np.log(self.data), (self,), f"log")
+
+        def _backward():
+            self.grad += (1 / self.data) * out.grad
+
+        out._backward = _backward
+
+        return out
+
+
     def sigmoid(self):
 
         out = Tensor(np.exp(self.data) / (np.exp(self.data) + 1), (self,))
@@ -88,20 +102,8 @@ class Tensor:
 
         return out
 
-    def log(self):
-        out = Tensor(np.log(self.data), (self,), f"log")
-
-        def _backward():
-            self.grad += (1 / self.data) * out.grad
-
-        out._backward = _backward
-
-        return out
-
     def relu(self):
-        out = Tensor(
-            self.data * (self.data > 0), (self,)
-        )
+        out = Tensor(self.data * (self.data > 0), (self,))
 
         def _backward():
             self.grad += (out.data > 0) * out.grad
@@ -110,11 +112,17 @@ class Tensor:
 
         return out
 
+    def __gt__(self, other):
+        return self.data > Tensor._validate_input(other).data
+
+    def __lt__(self, other):
+        return self.data < Tensor._validate_input(other).data
+
     def __ge__(self, other):
-        return self.data >= Tensor._validate_input(other)
+        return self.data >= Tensor._validate_input(other).data
 
     def __eq__(self, other):
-        return self.data == Tensor._validate_input(other)
+        return self.data == Tensor._validate_input(other).data
 
     def __neg__(self):  # -self
         return self * -1
@@ -137,13 +145,7 @@ class Tensor:
     def __rtruediv__(self, other):
         return other * self**-1
 
-
-
     def backward(self):
-        """
-        Call _backward() on the computation graph,
-        in topological order
-        """
         nodes = []
         visited = set()
 
@@ -160,9 +162,27 @@ class Tensor:
         for v in reversed(nodes):
             v._backward()
 
-
     def __repr__(self):
-        return f'Tensor with val {self.data} and grad {self.grad}'
+        return f"Tensor with val {self.data} and grad {self.grad}"
+
+    def __getitem__(self, key):
+        raise NotImplementedError("Tensor indexing not implemented")
+
+    @staticmethod
+    def cat(tensors):
+        """
+        Concatenate a list of Tensors along first axis
+        """
+        data_tuple = tuple([t.data for t in tensors])
+        out = Tensor(np.concatenate(data_tuple, axis=0), tuple(tensors))
+
+        def _backward():
+            for i in range(len(tensors)):
+                tensors[i].grad += out.grad[i]
+        
+        out._backward = _backward
+        
+        return out
 
     @staticmethod
     def _validate_input(input):
