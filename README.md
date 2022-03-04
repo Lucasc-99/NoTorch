@@ -6,12 +6,13 @@ This is a learning project heavily inspired by and based on:
 
 https://github.com/karpathy/micrograd
 
-Just like micrograd, this project contains a gradient engine and a small neural network library
+Just like micrograd, this project contains a gradient engine and a neural network library
 
 Additional features include:
 
-- Differentiable operations on matrices, instead of scalars
-- log, exp, sigmoid, relu, comparison operations, concatenation, 
+- Differentiable operations on Tensors (matrices), instead of scalars
+- Efficient and differentiable log, sigmoid, relu, concatenation, and summation
+- Efficient Tensor hashing
 
 IN PROGRESS:
 
