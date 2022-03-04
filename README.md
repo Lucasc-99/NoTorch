@@ -11,7 +11,7 @@ Just like micrograd, this project contains a gradient engine and a small neural 
 Additional features include:
 
 - Differentiable operations on matrices, instead of scalars
-- log, exp, sigmoid, relu
+- log, exp, sigmoid, relu, comparison operations, concatenation, 
 
 IN PROGRESS:
 
