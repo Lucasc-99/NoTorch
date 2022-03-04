@@ -1,6 +1,6 @@
-from typing import Tuple, Union
+from typing import Union
 import numpy as np
-
+import itertools
 
 class Tensor:
     """
@@ -11,17 +11,19 @@ class Tensor:
     Refactored from https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
     """
 
+    unique_id = itertools.count()
+
     def __init__(
-        self, data: Union[np.ndarray, int, float, list], _children: Tuple = ()
+        self, data: Union[np.ndarray, int, float, list], _children: tuple = ()
     ):
         assert isinstance(data, (np.ndarray, int, float, list))
         self.data = data if isinstance(data, np.ndarray) else np.array(data)
 
-
+        self.id = next(self.unique_id)
         self._children = _children
         self.grad = np.zeros_like(data)
-
-        self.backward = None
+        self._prev = set(_children)
+        self._backward = lambda : None
 
     def __add__(self, other):
 
@@ -60,7 +62,7 @@ class Tensor:
         def _backward():
             self.grad += (other.data * self.data ** (other.data - 1)) * out.grad
 
-            # may cause log(0) err
+            # TODO: robust test on this, may cause log(0) err
             if np.any(other.data):
                 mask = other.data > 0
                 other.grad[mask] += (
@@ -79,7 +81,7 @@ class Tensor:
         return other**self
 
     def log(self):
-        out = Tensor(np.log(self.data), (self,), f"log")
+        out = Tensor(np.log(self.data), (self,))
 
         def _backward():
             self.grad += (1 / self.data) * out.grad
@@ -165,16 +167,37 @@ class Tensor:
     def __repr__(self):
         return f"Tensor with val {self.data} and grad {self.grad}"
 
+    def __hash__(self):
+        return self.id
+
     def __getitem__(self, key):
         raise NotImplementedError("Tensor indexing not implemented")
 
     @staticmethod
-    def cat(tensors):
+    def sum1d(tensor_in):
         """
-        Concatenate a list of Tensors along first axis
+        Sum across all values in a 1d tensor in 1 operation,
+        mitigating graph blowup
         """
-        data_tuple = tuple([t.data for t in tensors])
-        out = Tensor(np.concatenate(data_tuple, axis=0), tuple(tensors))
+        assert len(tensor_in.data.shape) == 1, "Input tensor must be 1d"
+
+        out = Tensor(np.sum(tensor_in.data), (tensor_in,))
+
+        def _backward():
+            tensor_in.grad += np.full_like(tensor_in.grad, out.data)
+
+        out._backward = _backward
+
+        return out
+        
+    @staticmethod
+    def cat1d(tensors: list):
+        """
+        Concatenate a list of 1 dimensional Tensors along first axis
+
+        TODO: fix and input checking
+        """
+        out = Tensor(np.array([t.data for t in tensors]), tuple(tensors))
 
         def _backward():
             for i in range(len(tensors)):
