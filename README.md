@@ -12,7 +12,6 @@ Additional features include:
 
 - Differentiable operations on Tensors (matrices), instead of scalars
 - Efficient log, sigmoid, relu, concatenation, and summation
-- Efficient Tensor hashing
 
 IN PROGRESS:
 
