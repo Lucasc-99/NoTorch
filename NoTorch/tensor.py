@@ -28,7 +28,7 @@ class Tensor:
 
         other: Tensor = Tensor._validate_input(other)
 
-        out = Tensor(self.data + other.data, (self, other))
+        out = Tensor(np.add(self.data, other.data), (self, other))
 
         def _backward():
             self.grad += out.grad
@@ -42,7 +42,7 @@ class Tensor:
 
         other: Tensor = Tensor._validate_input(other)
 
-        out = Tensor(self.data * other.data, (self, other))
+        out = Tensor(np.multiply(self.data, other.data), (self, other))
 
         def _backward():
             self.grad += other.data * out.grad
@@ -158,7 +158,7 @@ class Tensor:
 
         topological_sort(self)
 
-        self.grad = np.ones_like(self.grad, dtype=np.single)
+        self.grad = np.ones_like(self.grad)
         for v in reversed(nodes):
             v._backward()
 
@@ -179,7 +179,7 @@ class Tensor:
         """
         assert len(tensor_in.data.shape) == 1, "Input tensor must be 1d"
 
-        out = Tensor(np.sum(tensor_in.data), (tensor_in,))
+        out = Tensor(np.longdouble([np.sum(tensor_in.data)]), (tensor_in,))
 
         def _backward():
             tensor_in.grad += np.full_like(tensor_in.grad, out.data)
@@ -210,16 +210,16 @@ class Tensor:
         assert isinstance(input, (np.ndarray, int, float, list)), f"{type(input)}"
 
         if isinstance(input, int):
-            return np.array([float(input)])
+            return np.longdouble([float(input)])
 
         elif isinstance(input, float):
-            return np.array([input])
+            return np.longdouble([input])
         
         elif isinstance(input, list):
-            return np.array([float(d) for d in input])
+            return np.longdouble([float(d) for d in input])
         
         elif isinstance(input, np.ndarray):
-            assert input.dtype in (np.float, np.single, np.double), "dtype must be float"
+            assert input.dtype in (np.longdouble, np.float, np.single, np.double), "dtype must be float"
             return input
 
     @staticmethod

@@ -14,25 +14,24 @@ class Module:
 
 class Dense(Module):
     """
-    Fully Connected Layer with sigmoid activation
+    Fully Connected Layer with relu activation
     """
 
-    def __init__(self, in_neurons: int, out_neurons: int, batch_size: int = 1):
+    def __init__(self, in_neurons: int, out_neurons: int, batch_size: int = 1, use_bias: bool = True):
         self.in_neurons = in_neurons
         self.out_neurons = out_neurons
+        self.use_bias = use_bias
         self.weights = [
-            Tensor(np.random.randn(in_neurons) * math.sqrt(2.0/in_neurons) )  for _ in range(out_neurons)
+            Tensor(np.longdouble(np.random.randn(in_neurons)) * math.sqrt(2.0/in_neurons) )  for _ in range(out_neurons)
         ]
-        self.bias = Tensor(np.zeros(shape=[out_neurons]))
+        self.bias = Tensor(np.ones(shape=[out_neurons]).astype(np.longdouble))
         self.batch_size = batch_size
 
-    # TODO: Batching
     def __call__(self, x):
-        return Tensor.cat1d([Tensor.sum1d(x * weight) for weight in self.weights]) + self.bias
+        return (Tensor.cat1d([Tensor.sum1d(weight * x) for weight in self.weights]) + self.bias).relu()
         
-
     def parameters(self):
-        return [self.bias] + [weight for weight in self.weights]
+        return [weight for weight in self.weights] + [self.bias]
 
     def __repr__(self):
         return f'Dense layer with in: {self.in_neurons} out: {self.out_neurons}'

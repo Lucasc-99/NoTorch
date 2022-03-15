@@ -1,50 +1,32 @@
 from NoTorch.nn import MLP
-from NoTorch.tensor import Tensor
-import matplotlib.pyplot as plt
-import math
-import random
-import numpy as np
-from tqdm import tqdm
+from sklearn.datasets import make_moons
 
 """
-Approximate |sin x| with a small neural network
+Make moons dataset from sklearn
 
 """
 
+# Define network
+net = MLP(in_features=2, out_features=1, hidden_sizes=[16, 16])
 
-# Define network and sin function
-net = MLP(in_features=1, out_features=1, hidden_sizes=[10, 10])
-fn = lambda x: 5
-
-
-# Define training data
-x = [random.uniform(0, 1)*10 for _ in range(10000)]
-y = [fn(val) for val in x]
+# Define training data, normalize y
+X, y = make_moons(n_samples=10, noise=0.1)
+y = y*2 - 1
 
 
-# Define training procedure
-learning_rate = 0.001
-for sample in tqdm(x):
-    
-    y_pred = net(sample)
-    
-    loss = (y_pred - fn(sample)) ** 2
-
-    loss.backward()
-
-    for param in net.parameters():
-        param.data -= learning_rate * param.grad
-    
+# Train
+for step in range(100):
     net.zero_grad()
-    
+    out = [net(sample) for sample in X]
+    losses = [(1.0 + -yi*scorei).relu() for yi, scorei in zip(y, out)]
+    # l2_loss = 1e-4 * sum((p*p for p in net.parameters()))
 
-# Find approximation and plot vs actual
+    total_loss = sum(losses)
+    accuracy = [(yi > 0) == (scorei.data > 0) for yi, scorei in zip(y, out)]
+    print(sum(accuracy) / len(accuracy))
+    total_loss.backward()
 
-x_plot = np.linspace(0, 10, 10)
-apprx = [net(i).data for i in x_plot]
-actual = [fn(i) for i in x_plot]
+    for p in net.parameters():
+        print(p.grad)
+        p.data -=  p.grad * (1.0 - 0.9 * step /100)
 
-print(apprx)
-#plt.plot(x_plot, apprx)
-
-#plt.show()
