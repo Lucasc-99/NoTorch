@@ -15,7 +15,10 @@ class Tensor:
     unique_id = itertools.count()
 
     def __init__(
-        self, data: Union[np.ndarray, int, float, list], _children: tuple = ()
+        self,
+        data: Union[np.ndarray, int, float, list],
+        _children: tuple = (),
+        _op: str = "None",
     ):
         self.data = Tensor._validate_init_input(data)
         self.id = next(self.unique_id)
@@ -23,12 +26,13 @@ class Tensor:
         self.grad = np.zeros_like(self.data)
         self._prev = set(_children)
         self._backward = lambda: None
+        self._op = _op
 
     def __add__(self, other):
 
         other: Tensor = Tensor._validate_input(other)
 
-        out = Tensor(np.add(self.data, other.data), (self, other))
+        out = Tensor(np.add(self.data, other.data), (self, other), _op="+")
 
         def _backward():
             self.grad += out.grad
@@ -42,7 +46,7 @@ class Tensor:
 
         other: Tensor = Tensor._validate_input(other)
 
-        out = Tensor(np.multiply(self.data, other.data), (self, other))
+        out = Tensor(np.multiply(self.data, other.data), (self, other), _op="*")
 
         def _backward():
             self.grad += other.data * out.grad
@@ -56,7 +60,9 @@ class Tensor:
 
         other: Tensor = Tensor._validate_input(other)
 
-        out = Tensor(self.data**other.data, (self,)) # Add other to children when below is fixed
+        out = Tensor(
+            self.data**other.data, (self,), _op="pow"
+        )  # Add other to children when below is fixed
 
         def _backward():
             self.grad += (other.data * self.data ** (other.data - 1)) * out.grad
@@ -71,6 +77,7 @@ class Tensor:
                 )
                 other.grad = temp
             """
+
         out._backward = _backward
 
         return out
@@ -81,7 +88,7 @@ class Tensor:
         return other**self
 
     def log(self):
-        out = Tensor(np.log(self.data), (self,))
+        out = Tensor(np.log(self.data), (self,), _op="log")
 
         def _backward():
             self.grad += (1 / self.data) * out.grad
@@ -91,11 +98,15 @@ class Tensor:
         return out
 
     def sigmoid(self):
-        out = Tensor(np.exp(self.data) / (np.exp(self.data) + 1), (self,))
+        out = Tensor(
+            np.exp(self.data) / (np.exp(self.data) + 1), (self,), _op="sigmoid"
+        )
 
         def _backward():
             self.grad += (
-                np.exp(self.data) / ((np.exp(self.data) + 1) * (np.exp(self.data) + 1)) * out.grad
+                np.exp(self.data)
+                / ((np.exp(self.data) + 1) * (np.exp(self.data) + 1))
+                * out.grad
             )
 
         out._backward = _backward
@@ -103,7 +114,7 @@ class Tensor:
         return out
 
     def relu(self):
-        out = Tensor(self.data * (self.data > 0), (self,))
+        out = Tensor(self.data * (self.data > 0), (self,), _op="relu")
 
         def _backward():
             self.grad += (out.data > 0) * out.grad
@@ -159,6 +170,7 @@ class Tensor:
         topological_sort(self)
 
         self.grad = np.ones_like(self.grad)
+
         for v in reversed(nodes):
             v._backward()
 
@@ -179,10 +191,10 @@ class Tensor:
         """
         assert len(tensor_in.data.shape) == 1, "Input tensor must be 1d"
 
-        out = Tensor(np.longdouble([np.sum(tensor_in.data)]), (tensor_in,))
+        out = Tensor(np.longdouble([np.sum(tensor_in.data)]), (tensor_in,), _op="sum1d")
 
         def _backward():
-            tensor_in.grad += np.full_like(tensor_in.grad, out.data)
+            tensor_in.grad += np.full_like(tensor_in.grad, out.grad)
 
         out._backward = _backward
 
@@ -195,7 +207,11 @@ class Tensor:
 
         TODO: fix and input checking
         """
-        out = Tensor(np.concatenate([t.data for t in tensors], axis=0), tuple(tensors))
+        out = Tensor(
+            np.concatenate([t.data for t in tensors], axis=0),
+            tuple(tensors),
+            _op="cat1d",
+        )
 
         def _backward():
             for i in range(len(tensors)):
@@ -214,12 +230,17 @@ class Tensor:
 
         elif isinstance(input, float):
             return np.longdouble([input])
-        
+
         elif isinstance(input, list):
             return np.longdouble([float(d) for d in input])
-        
+
         elif isinstance(input, np.ndarray):
-            assert input.dtype in (np.longdouble, np.float, np.single, np.double), "dtype must be float"
+            assert input.dtype in (
+                np.longdouble,
+                np.float,
+                np.single,
+                np.double,
+            ), "dtype must be float"
             return input
 
     @staticmethod
