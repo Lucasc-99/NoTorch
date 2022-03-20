@@ -7,7 +7,7 @@ Make moons dataset from sklearn, also from micrograd
 """
 
 # Define network
-net = MLP(in_features=2, out_features=1, hidden_sizes=[16, 16])
+net = MLP(in_features=2, out_features=1, hidden_sizes=[16, 16, 4])
 
 # Define training data, normalize y
 X, y = make_moons(n_samples=100, noise=0.1)
@@ -29,4 +29,4 @@ for step in range(100):
     total_loss.backward()
 
     for p in net.parameters():
-        p.data -= p.grad * 0.0003
+        p.data -= p.grad * 0.003
