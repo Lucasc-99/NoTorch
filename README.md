@@ -29,9 +29,11 @@ Coming soon
 <br>
 <h1>How to Use</h1>
 
+To run mlp_example.py: 
 ```
 $ pip install poetry
 $ git clone https://github.com/Lucasc-99/NoTorch
 $ cd NoTorch
 $ poetry install 
+$ poetry run python mlp_example.py
 ```
