@@ -7,7 +7,6 @@ authors = ["Lucas Cecchi"]
 [tool.poetry.dependencies]
 python = "^3.8"
 numpy = "^1.22.3"
-torch = "^1.11.0"
 sklearn = "^0.0"
 
 [tool.poetry.dev-dependencies]
