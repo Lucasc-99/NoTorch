@@ -29,4 +29,9 @@ Coming soon
 <br>
 <h1>How to Use</h1>
 
-Coming soon
+```
+$ pip install poetry
+$ git clone https://github.com/Lucasc-99/NoTorch
+$ cd NoTorch
+$ poetry install 
+```
