@@ -184,6 +184,24 @@ class Tensor:
         raise NotImplementedError("Tensor indexing not implemented")
 
     @staticmethod
+    def mat_vec_mul(mat, vec):
+        """
+        Multiply matrix with vector using np.matmul
+        Note: transform not needed for vec, as it is done automatically by numpy
+        """
+        mat = Tensor._validate_input(mat)
+        vec = Tensor._validate_input(vec)
+
+        out = Tensor(np.matmul(mat.data, vec.data), (mat, vec), _op="mat_vec_mul")
+
+        def _backward():
+            mat.grad += np.outer(out.grad.T, vec.data)
+            vec.grad += np.matmul(mat.data.T, out.grad)
+
+        out._backward = _backward
+        return out
+
+    @staticmethod
     def sum1d(tensor_in):
         """
         Sum across all values in a 1d tensor in 1 operation,
