@@ -10,12 +10,15 @@ Just like micrograd, this project contains a gradient engine and a neural networ
 
 Additional features include:
 
-- Differentiable operations on Tensors (matrices), instead of scalars
-- Efficient log, sigmoid, relu, concatenation, and summation
+- A matrix valued autograd engine, allowing for differentiable matrix operations:
+    - element-wise: +, -, *, /, ^, log, exp, relu, sigmoid
+    - matrix multiplication (used for efficient forward passes)
+    - summation and concatenation across a single dimension
+
+- Extremely fast performance, speeds similar to PyTorch and orders of magnitude faster than micrograd
 
 IN PROGRESS:
 
-- Convolutional layers for CNN's
 - Attention layers for Transformers
 - GPU support via CuPy
 
