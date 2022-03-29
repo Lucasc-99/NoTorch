@@ -3,17 +3,17 @@
 A 'from scratch' implementation of a deep learning library (no pytorch/tensorflow) built only on NumPy.
 
 This is a learning project heavily inspired by and based on:
-
 https://github.com/karpathy/micrograd
 
-Just like micrograd, this project contains a gradient engine and a neural network library
 
-Additional features include:
+FEATURES:
 
 - A matrix valued autograd engine, allowing for differentiable matrix operations:
     - element-wise: +, -, *, /, ^, log, exp, relu, sigmoid
     - matrix multiplication (used for efficient forward passes)
     - summation and concatenation across a single dimension
+
+- A neural network library allowing users to build fully customizable multi-layer perceptrons 
 
 - Extremely fast performance, speeds similar to PyTorch and orders of magnitude faster than micrograd
 
@@ -38,5 +38,5 @@ $ pip install poetry
 $ git clone https://github.com/Lucasc-99/NoTorch
 $ cd NoTorch
 $ poetry install 
-$ poetry run python mlp_example.py
+$ poetry run python speed_test.py
 ```
