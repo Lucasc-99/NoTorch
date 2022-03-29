@@ -8,6 +8,8 @@ authors = ["Lucas Cecchi"]
 python = "^3.8"
 numpy = "^1.22.3"
 sklearn = "^0.0"
+torch = "^1.11.0"
+micrograd = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
 

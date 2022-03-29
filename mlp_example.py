@@ -2,7 +2,7 @@ from NoTorch.nn import MLP
 from sklearn.datasets import make_moons
 
 """
-Make moons dataset from sklearn, also from micrograd
+Make moons sklearn example, refactored from micrograd/demo.ipynb
 
 """
 
