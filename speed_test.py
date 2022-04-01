@@ -14,6 +14,15 @@ NOTE: For the most accurate result run more than once (so byte code files can be
 IN_SIZE = 50
 HIDDEN = 200
 
+
+print(
+    f"""Speed Test: \n 
+each library executes a forward and backward pass on the same random data using 
+an 8-layer MLP with an input size of {50}, output size of 1, and hidden size of {200}
+
+"""
+)
+
 micrograd_model = microMLP(IN_SIZE, [HIDDEN, HIDDEN, HIDDEN, 1])
 no_torch_model = NoTorch.nn.MLP(
     in_features=IN_SIZE, out_features=1, hidden_sizes=[HIDDEN, HIDDEN, HIDDEN]
@@ -38,13 +47,6 @@ pytorch_model = torch.nn.Sequential(
 
 x = [np.random.random_sample() for _ in range(50)]
 
-print(
-    f"""Speed Test: \n 
-each library executes a forward and backward pass on the same random data using 
-an 8-layer MLP with an input size of {50}, output size of 1, and hidden size of {200}
-
-"""
-)
 
 """
 Micrograd
@@ -73,5 +75,5 @@ time_pytorch = time.time() - start_pytorch
 
 
 print(
-    f"Micrograd Time: {time_micrograd} secs \nNoTorch Time: {time_no_torch} secs \nPyTorch Time: {time_pytorch}"
+    f"Micrograd Forward/Backward Time: {time_micrograd} seconds \nNoTorch Forward/Backward Time: {time_no_torch} seconds \nPyTorch Forward/Backward Time: {time_pytorch} seconds"
 )
