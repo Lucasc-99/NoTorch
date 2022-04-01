@@ -7,7 +7,9 @@ import numpy as np
 """
 Speed test for Micrograd, NoTorch and PyTorch
 
-The test consists of a forward and backward pass using a 4-layer MLP from each library
+The test consists of a forward and backward pass using an 8-layer MLP from each library
+
+NOTE: For the most accurate result run more than once (so byte code files can be cached)
 """
 IN_SIZE = 50
 HIDDEN = 200
@@ -23,11 +25,26 @@ pytorch_model = torch.nn.Sequential(
     torch.nn.ReLU(),
     torch.nn.Linear(HIDDEN, HIDDEN),
     torch.nn.ReLU(),
+    torch.nn.Linear(HIDDEN, HIDDEN),
+    torch.nn.ReLU(),
+    torch.nn.Linear(HIDDEN, HIDDEN),
+    torch.nn.ReLU(),
+    torch.nn.Linear(HIDDEN, HIDDEN),
+    torch.nn.ReLU(),
+    torch.nn.Linear(HIDDEN, HIDDEN),
+    torch.nn.ReLU(),
     torch.nn.Linear(HIDDEN, 1),
 )
 
 x = [np.random.random_sample() for _ in range(50)]
 
+print(
+    f"""Speed Test: \n 
+each library executes a forward and backward pass on the same random data using 
+an 8-layer MLP with an input size of {50}, output size of 1, and hidden size of {200}
+
+"""
+)
 
 """
 Micrograd
@@ -56,5 +73,5 @@ time_pytorch = time.time() - start_pytorch
 
 
 print(
-    f"Micrograd Time: {time_micrograd} \nNoTorch Time: {time_no_torch} \nPyTorch Time: {time_pytorch}"
+    f"Micrograd Time: {time_micrograd} secs \nNoTorch Time: {time_no_torch} secs \nPyTorch Time: {time_pytorch}"
 )
