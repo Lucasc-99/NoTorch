@@ -15,7 +15,7 @@ FEATURES:
 
 - A neural network library allowing users to build fully customizable multi-layer perceptrons 
 
-- Extremely fast performance, speeds similar to and even exceeding PyTorch. Orders of magnitude faster than micrograd
+- Extremely fast performance, speeds similar to PyTorch. Orders of magnitude faster than micrograd (see speed_test.py)
 
 IN PROGRESS:
 
