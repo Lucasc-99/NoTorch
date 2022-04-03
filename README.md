@@ -32,7 +32,7 @@ Coming soon
 <br>
 <h1>How to Use</h1>
 
-To run mlp_example.py: 
+To run speed_test.py: 
 ```
 $ pip install poetry
 $ git clone https://github.com/Lucasc-99/NoTorch
