@@ -9,7 +9,6 @@ Speed test for Micrograd, NoTorch and PyTorch
 
 The test consists of a forward and backward pass using an 8-layer MLP from each library
 
-NOTE: For the most accurate result run more than once (so byte code files can be cached)
 """
 IN_SIZE = 50
 HIDDEN = 200
@@ -23,9 +22,13 @@ an 8-layer MLP with an input size of {50}, output size of 1, and hidden size of 
 """
 )
 
-micrograd_model = microMLP(IN_SIZE, [HIDDEN, HIDDEN, HIDDEN, 1])
+micrograd_model = microMLP(
+    IN_SIZE, [HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN, 1]
+)
 no_torch_model = NoTorch.nn.MLP(
-    in_features=IN_SIZE, out_features=1, hidden_sizes=[HIDDEN, HIDDEN, HIDDEN]
+    in_features=IN_SIZE,
+    out_features=1,
+    hidden_sizes=[HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN],
 )
 pytorch_model = torch.nn.Sequential(
     torch.nn.Linear(IN_SIZE, HIDDEN),
