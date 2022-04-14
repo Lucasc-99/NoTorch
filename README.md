@@ -2,7 +2,7 @@
 
 A 'from scratch' implementation of a deep learning library (no pytorch/tensorflow) built only on NumPy.
 
-This is a learning project heavily inspired by and based on:
+This is a learning project heavily inspired by and based on Andrej Karpathy's micrograd:
 https://github.com/karpathy/micrograd
 
 
