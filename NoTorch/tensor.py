@@ -223,7 +223,6 @@ class Tensor:
         """
         Concatenate a list of 1 dimensional Tensors along first axis
 
-        TODO: fix and input checking
         """
         out = Tensor(
             np.concatenate([t.data for t in tensors], axis=0),
