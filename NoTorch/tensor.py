@@ -9,6 +9,8 @@ class Tensor:
 
     supports: +, -, *, /, **, log, exp, relu, sigmoid
 
+    operations are supported with np.ndarray, int, float, list of int, list of float, and other Tensors
+
     Refactored from https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
     """
 
