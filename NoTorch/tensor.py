@@ -61,22 +61,12 @@ class Tensor:
         other: Tensor = Tensor._validate_input(other)
 
         out = Tensor(
-            self.data**other.data, (self,), _op="pow"
-        )  # Add other to children when below is fixed
+            self.data**other.data, (self, other), _op="pow"
+        )
 
         def _backward():
             self.grad += (other.data * self.data ** (other.data - 1)) * out.grad
-
-            # TODO: fix this, exp grad not implemented as of now
-            """
-            if np.any(other.data):
-                temp = other.grad + (
-                    (self.data ** other.data)
-                    * np.ma.log(np.abs(other.data))
-                    * out.grad
-                )
-                other.grad = temp
-            """
+            other.grad += (self.data ** other.data) * np.log(self.data)
 
         out._backward = _backward
 
@@ -97,28 +87,22 @@ class Tensor:
 
         return out
 
-    def sigmoid(self):
-        out = Tensor(
-            np.exp(self.data) / (np.exp(self.data) + 1), (self,), _op="sigmoid"
-        )
-
-        def _backward():
-            self.grad += (
-                np.exp(self.data)
-                / ((np.exp(self.data) + 1) * (np.exp(self.data) + 1))
-                * out.grad
-            )
-
-        out._backward = _backward
-
-        return out
-
     def relu(self):
         out = Tensor(self.data * (self.data > 0), (self,), _op="relu")
 
         def _backward():
             self.grad += (out.data > 0) * out.grad
 
+        out._backward = _backward
+
+        return out
+
+    def exp(self):
+        out = Tensor(np.exp(self.data), (self,), _op="exp")
+
+        def _backward():
+            self.grad += np.exp(self.data)
+        
         out._backward = _backward
 
         return out
