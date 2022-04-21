@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 from NoTorch.tensor import Tensor
 import math
 import numpy as np
@@ -61,7 +61,7 @@ class MLP(Module):
         self,
         in_features: int,
         out_features: int,
-        hidden_sizes: list,
+        hidden_sizes: List[int],
         hidden_activation: Callable = lambda x: x.relu(),
     ):
         f = hidden_activation
