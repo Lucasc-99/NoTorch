@@ -28,7 +28,6 @@ IN PROGRESS:
 Coming soon
 
 
-
 <br>
 <h1>How to Use</h1>
 Install poetry: https://python-poetry.org/docs/#installation
