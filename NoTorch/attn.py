@@ -28,7 +28,10 @@ class MultiHeadAttention(Module):
         self.w_query = [_w_init() for _ in heads]
         self.w_key = [_w_init() for _ in heads]
         self.w_value = [_w_init() for _ in heads]
-    
+
+        self.heads = heads
+        self.input_dim = input_dim
+        
     def __call__(self, x: List[Union[Tensor, np.ndarray]]) -> List[Tensor]:
         # TODO
         pass
