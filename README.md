@@ -32,9 +32,9 @@ Coming soon
 <br>
 <h1>How to Use</h1>
 
-To run speed_test.py: 
+To run speed_test.py: (OSX/Linux)
 ```
-$ pip install poetry
+$ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 $ git clone https://github.com/Lucasc-99/NoTorch
 $ cd NoTorch
 $ poetry install 
