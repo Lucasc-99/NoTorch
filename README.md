@@ -31,10 +31,10 @@ Coming soon
 
 <br>
 <h1>How to Use</h1>
+Install poetry: https://python-poetry.org/docs/#installation
 
 To run speed_test.py: (OSX/Linux)
 ```
-$ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 $ git clone https://github.com/Lucasc-99/NoTorch
 $ cd NoTorch
 $ poetry install 
