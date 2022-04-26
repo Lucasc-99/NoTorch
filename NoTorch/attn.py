@@ -34,6 +34,7 @@ class MultiHeadAttention(Module):
         self.input_dim = input_dim
 
     def __call__(self, x: List[Union[Tensor, np.ndarray]]) -> List[List[Tensor]]:
+        
         def y_i_r(i: int, r: int) -> Tensor:
             """
             Get vector output for token i, for head r
