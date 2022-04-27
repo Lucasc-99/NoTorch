@@ -31,6 +31,9 @@ class Tensor:
         self._op = _op
 
     def __add__(self, other):
+        """
+        Addition operation
+        """
 
         other: Tensor = Tensor._validate_input(other)
 
@@ -45,6 +48,9 @@ class Tensor:
         return out
 
     def __mul__(self, other):
+        """
+        Multiplication operation
+        """
 
         other: Tensor = Tensor._validate_input(other)
 
@@ -59,7 +65,9 @@ class Tensor:
         return out
 
     def __pow__(self, other):
-
+        """
+        Exponentiation operation
+        """
         other: Tensor = Tensor._validate_input(other)
 
         out = Tensor(
@@ -90,6 +98,9 @@ class Tensor:
         return out
 
     def relu(self):
+        """
+        Rectified Non-linearity
+        """
         out = Tensor(self.data * (self.data > 0), (self,), _op="relu")
 
         def _backward():
@@ -100,6 +111,9 @@ class Tensor:
         return out
 
     def exp(self):
+        """
+        e^x operation
+        """
         out = Tensor(np.exp(self.data), (self,), _op="exp")
 
         def _backward():
@@ -170,10 +184,19 @@ class Tensor:
         raise NotImplementedError("Tensor indexing not implemented")
 
     @staticmethod
+    def dot(a, b):
+        """
+        Vector dot product
+        """
+        a = Tensor._validate_input(a)
+        b = Tensor._validate_input(b)
+
+        return Tensor.sum1d(a*b)
+
+    @staticmethod
     def mat_vec_mul(mat, vec):
         """
         Multiply matrix with vector using np.matmul
-        Note: transform not needed for vec, as it is done automatically by numpy
         """
         mat = Tensor._validate_input(mat)
         vec = Tensor._validate_input(vec)
@@ -208,7 +231,6 @@ class Tensor:
     def cat1d(tensors: list):
         """
         Concatenate a list of 1 dimensional Tensors along first axis
-
         """
         out = Tensor(
             np.concatenate([t.data for t in tensors], axis=0),
@@ -240,7 +262,11 @@ class Tensor:
         elif isinstance(input, np.ndarray):
             assert input.dtype in (
                 np.longdouble,
-                np.float,
+                np.half,
+                np.float16,
+                np.float32,
+                np.float64,
+                np.float128,
                 np.single,
                 np.double,
             ), "dtype must be float"

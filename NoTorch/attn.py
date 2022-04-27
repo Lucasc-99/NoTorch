@@ -26,9 +26,9 @@ class MultiHeadAttention(Module):
                 )
             )
 
-        self.w_query = [_w_init() for _ in heads]
-        self.w_key = [_w_init() for _ in heads]
-        self.w_value = [_w_init() for _ in heads]
+        self.w_query = [_w_init() for _ in range(heads)]
+        self.w_key = [_w_init() for _ in range(heads)]
+        self.w_value = [_w_init() for _ in range(heads)]
 
         self.heads = heads
         self.input_dim = input_dim
@@ -42,14 +42,14 @@ class MultiHeadAttention(Module):
 
             query_key_dot = [
                 (
-                    Tensor.dot(self.w_query[r], x[i])
-                    * Tensor.dot(self.w_key[r], x[j])
+                    Tensor.mat_vec_mul(self.w_query[r], x[i])
+                    * Tensor.mat_vec_mul(self.w_key[r], x[j])
                     / math.sqrt(len(x))
                 ).exp()
                 for j in range(len(x))
             ]
             qk_sum = sum(query_key_dot)
-            return sum([qkd / qk_sum for qkd in query_key_dot]) * Tensor.dot(
+            return sum([qkd / qk_sum for qkd in query_key_dot]) * Tensor.mat_vec_mul(
                 self.w_value[r], x[i]
             )
 
@@ -57,3 +57,20 @@ class MultiHeadAttention(Module):
 
     def parameters(self):
         return [self.w_query, self.w_key, self.w_value]
+
+
+class Transformer(Module):
+    """
+    Transformer model
+    """
+
+    def __init__(self, input_dim: int, heads: int):
+        self.input_dim = input_dim
+        self.heads = heads
+        self.attn = MultiHeadAttention(input_dim, heads)
+
+    def __call__(self, x):
+        pass
+
+    def parameters(self):
+        return self.attn.parameters()
