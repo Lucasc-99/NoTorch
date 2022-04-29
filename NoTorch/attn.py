@@ -3,7 +3,7 @@ Attention for Transformers
 """
 
 from typing import List, Union
-from NoTorch.nn import Module
+from NoTorch.nn import Module, MLP
 from NoTorch.tensor import Tensor
 import numpy as np
 import math
@@ -53,24 +53,25 @@ class MultiHeadAttention(Module):
                 self.w_value[r], x[i]
             )
 
-        return [[y_i_r(i, r) for i in range(len(x))] for r in range(self.heads)]
+        return [Tensor.cat1d([y_i_r(i, r) for r in range(self.heads)]) for i in range(len(x))]
 
     def parameters(self):
-        return [self.w_query, self.w_key, self.w_value]
+        return self.w_query + self.w_key + self.w_value
 
 
-class Transformer(Module):
+class TransformerLayer(Module):
     """
-    Transformer model
+    Linear layer stacked on Multihead attention
     """
 
-    def __init__(self, input_dim: int, heads: int):
+    def __init__(self, input_dim: int, output_dim: int, heads: int):
         self.input_dim = input_dim
         self.heads = heads
         self.attn = MultiHeadAttention(input_dim, heads)
+        self.linear = MLP(input_dim * heads, output_dim, hidden_sizes=[16, 16])
 
-    def __call__(self, x):
-        pass
+    def __call__(self, x: List[Tensor]) -> List[Tensor]:
+        return [self.linear(token) for token in self.attn(x)]
 
     def parameters(self):
         return self.attn.parameters()
