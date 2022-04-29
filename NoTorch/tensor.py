@@ -1,4 +1,5 @@
-from typing import Union
+from __future__ import annotations
+from typing import Union, List
 import numpy as np
 import itertools
 
@@ -228,7 +229,7 @@ class Tensor:
         return out
 
     @staticmethod
-    def cat1d(tensors: list):
+    def cat1d(tensors: List[Tensor]):
         """
         Concatenate a list of 1 dimensional Tensors along first axis
         """
