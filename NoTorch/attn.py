@@ -33,7 +33,7 @@ class MultiHeadAttention(Module):
         self.heads = heads
         self.input_dim = input_dim
 
-    def __call__(self, x: List[Union[Tensor, np.ndarray]]) -> List[List[Tensor]]:
+    def __call__(self, x: List[Union[Tensor, np.ndarray]]) -> List[Tensor]:
         
         def y_i_r(i: int, r: int) -> Tensor:
             """

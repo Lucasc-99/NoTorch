@@ -25,7 +25,7 @@ IN PROGRESS:
 
 <h1>Implementation Details</h1>
 
-Coming soon:
+Coming soon
 
 
 
