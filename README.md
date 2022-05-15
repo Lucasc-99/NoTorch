@@ -13,13 +13,12 @@ FEATURES:
     - matrix multiplication (used for efficient forward passes)
     - summation and concatenation across a single dimension
 
-- A neural network library allowing users to build fully customizable multi-layer perceptrons 
+- A neural network library allowing users to build fully customizable neural networks, from basic multi-layer perceptrons to modern Transformers
 
 - Extremely fast performance, speeds similar to PyTorch. Orders of magnitude faster than micrograd (see speed_test.py)
 
 IN PROGRESS:
 
-- Attention layers for Transformers
 - GPU support via CuPy
 
 

@@ -74,4 +74,4 @@ class TransformerLayer(Module):
         return [self.linear(token) for token in self.attn(x)]
 
     def parameters(self):
-        return self.attn.parameters()
+        return self.attn.parameters() + self.linear.parameters()
