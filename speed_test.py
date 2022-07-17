@@ -19,6 +19,7 @@ print(
 Each library executes a forward and backward pass on the same random data using 
 an 8-layer MLP with an input size of {50}, output size of 1, and hidden size of {200}
 
+Run multiple times for most accurate results
 """
 )
 
