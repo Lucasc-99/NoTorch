@@ -98,6 +98,16 @@ class Tensor:
 
         return out
 
+    def transpose(self):
+        out = Tensor(self.data.T, (self,), _op="transpose")
+
+        def _backward():
+            self.grad += out.grad.T
+
+        out._backward = _backward
+
+        return out        
+
     def relu(self):
         """
         Rectified Non-linearity
@@ -195,6 +205,23 @@ class Tensor:
         return Tensor.sum1d(a*b)
 
     @staticmethod
+    def mat_mul(mat_a, mat_b):
+        """
+        Matrix multiplication
+        """
+        mat_a = Tensor._validate_input(mat_a)
+        mat_b = Tensor._validate_input(mat_b)
+
+        out = Tensor(np.matmul(mat_a.data, mat_b.data), (mat_a, mat_b), _op="mat_mul")
+
+        def _backward():
+            mat_a.grad += np.matmul(out.grad, mat_b.data.T)
+            mat_b.grad += np.matmul(mat_a.data.T, out.grad)
+        
+        out._backward = _backward
+        return out
+
+    @staticmethod
     def mat_vec_mul(mat, vec):
         """
         Multiply matrix with vector using np.matmul
@@ -223,6 +250,25 @@ class Tensor:
 
         def _backward():
             tensor_in.grad += np.full_like(tensor_in.grad, out.grad)
+
+        out._backward = _backward
+
+        return out
+
+    @staticmethod
+    def stack(tensors: List[Tensor]):
+        """
+        Stack a list of Tensors along first axis
+        """
+        out = Tensor(
+            np.stack([t.data for t in tensors], axis=0),
+            tuple(tensors),
+            _op="stack",
+        )
+
+        def _backward():
+            for i in range(len(tensors)):
+                tensors[i].grad += out.grad[i]
 
         out._backward = _backward
 

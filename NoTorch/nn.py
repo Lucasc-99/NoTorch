@@ -39,11 +39,11 @@ class Dense(Module):
                 ]
             )
         )
-        self.bias = Tensor(np.ones(shape=[out_neurons]).astype(np.longdouble) * 0.01)
+        self.bias = Tensor(np.ones(shape=[out_neurons]).astype(np.longdouble) * 0.01) if use_bias else None
         self.batch_size = batch_size
 
     def __call__(self, x: np.ndarray):
-        return self.activation(Tensor.mat_vec_mul(self.weights, x) + self.bias)
+        return self.activation(Tensor.mat_vec_mul(self.weights, x) + self.bias) if self.use_bias else self.activation(Tensor.mat_vec_mul(self.weights, x))
 
     def parameters(self):
         return [self.weights, self.bias]
