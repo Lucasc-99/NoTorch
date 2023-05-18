@@ -34,10 +34,9 @@ class MultiHeadAttention(Module):
         
         def scaled_dot_prod(h: int) -> Tensor:
             """
-            Get vector output for token i, for head r
+            Compute softmax(qk'/sqrt(d_k))v for head h
             """
-
-            query_key_dot = Tensor.mat_mul(q[h], k[h].transpose()) / math.sqrt(self.input_dim)
+            query_key_dot = Tensor.one_way_grad_mul(Tensor.mat_mul(q[h], k[h].transpose()), math.sqrt(self.input_dim)**-1)
             # TODO softmax
             # TODO linear bias positional encoding
             qk_value_dot = Tensor.mat_mul(query_key_dot, v[h])
@@ -48,7 +47,7 @@ class MultiHeadAttention(Module):
         return [scaled_dot_prod(h) for h in range(self.heads)]
 
     def parameters(self):
-        return self.w_query + self.w_key + self.w_value
+        return self.w_q + self.w_k + self.w_v
 
 
 # class TransformerLayer(Module):
@@ -68,7 +67,13 @@ class MultiHeadAttention(Module):
 #     def parameters(self):
 #         return self.attn.parameters() + self.linear.parameters()
 
-c = MultiHeadAttention(3, 2)
-x = [Tensor(np.random.randn(3)) for _ in range(5)]
-y = c(x)
+# c = MultiHeadAttention(3, 1)
+# x = [Tensor(np.random.randn(3)) for _ in range(5)]
+# y = c(x)
+# print(x)
+
+# print('\n')
+
+# print(y)
+# y[0].backward()
 

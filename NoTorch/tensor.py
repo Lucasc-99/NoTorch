@@ -183,6 +183,7 @@ class Tensor:
         self.grad = np.ones_like(self.grad)
 
         for v in reversed(nodes):
+            print(v._op)
             v._backward()
 
     def __repr__(self):
@@ -193,6 +194,23 @@ class Tensor:
 
     def __getitem__(self, key):
         raise NotImplementedError("Tensor indexing not implemented")
+
+    @staticmethod
+    def one_way_grad_mul(a, b):
+        """
+        Multiply a and b, but only propagate gradient through a
+        """
+        a = Tensor._validate_input(a)
+        b = Tensor._validate_input(b)
+
+        out = Tensor(np.multiply(a.data, b.data), (a,), _op="one_way_grad_mul")
+
+        def _backward():
+            a.grad += b.data * out.grad
+
+        out._backward = _backward
+
+        return out
 
     @staticmethod
     def dot(a, b):
