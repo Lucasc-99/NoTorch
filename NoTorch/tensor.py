@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Union, List
 import numpy as np
 import itertools
-
+from functools import partial
 
 class Tensor:
     """
@@ -289,6 +289,21 @@ class Tensor:
                 tensors[i].grad += out.grad[i]
 
         out._backward = _backward
+
+        return out
+
+    @staticmethod
+    def unstack(tensor: Tensor) -> List[Tensor]:
+        """
+        Unstack a Tensor along first axis
+        """
+        out = [Tensor(t, (tensor,), _op="unstack") for t in np.split(tensor.data, tensor.data.shape[0], axis=0)]
+
+        def _backward(idx):
+            tensor.grad += np.concatenate([np.zeros_like(t.data) if i != idx else t.grad for i, t in enumerate(out)], axis=0)
+
+        for i in range(len(out)):
+            out[i]._backward = partial(_backward, i)
 
         return out
 
