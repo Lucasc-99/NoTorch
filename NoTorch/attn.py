@@ -35,16 +35,13 @@ class MultiHeadAttention(Module):
         def scaled_dot_prod(h: int) -> Tensor:
             """
             Compute softmax(qk'/sqrt(d_k))v for head h
-            """
             # TODO masking
             # TODO linear bias positional encoding
+            """
             query_key_dot = Tensor.one_way_grad_mul(Tensor.mat_mul(q[h], k[h].transpose()), math.sqrt(self.input_dim)**-1)
-            
-            # TODO softmax
-            
-            qk_value_dot = Tensor.mat_mul(query_key_dot, v[h])
-
-            return qk_value_dot
+            qk_e = query_key_dot.exp()
+            qk_e /= Tensor.repeat(Tensor.sum(query_key_dot).exp(), qk_e.shape[0])
+            return Tensor.mat_mul(qk_e, v[h])
             
 
         return [scaled_dot_prod(h) for h in range(self.heads)]
