@@ -26,19 +26,22 @@ class MultiHeadAttention(Module):
         self.input_dim = input_dim
 
     def __call__(self, x: List[Union[Tensor, np.ndarray]]) -> List[Tensor]:
-        
-        q = [Tensor.mat_mul(Tensor.stack(x), self.w_q[h]) for h in range(self.heads)]
-        k = [Tensor.mat_mul(Tensor.stack(x), self.w_k[h]) for h in range(self.heads)]
-        v = [Tensor.mat_mul(Tensor.stack(x), self.w_v[h]) for h in range(self.heads)]
+        tokens = Tensor.stack(x)
+        q = [Tensor.mat_mul(tokens, self.w_q[h]) for h in range(self.heads)]
+        k = [Tensor.mat_mul(tokens, self.w_k[h]) for h in range(self.heads)]
+        v = [Tensor.mat_mul(tokens, self.w_v[h]) for h in range(self.heads)]
 
         
         def scaled_dot_prod(h: int) -> Tensor:
             """
             Compute softmax(qk'/sqrt(d_k))v for head h
             """
-            query_key_dot = Tensor.one_way_grad_mul(Tensor.mat_mul(q[h], k[h].transpose()), math.sqrt(self.input_dim)**-1)
-            # TODO softmax
+            # TODO masking
             # TODO linear bias positional encoding
+            query_key_dot = Tensor.one_way_grad_mul(Tensor.mat_mul(q[h], k[h].transpose()), math.sqrt(self.input_dim)**-1)
+            
+            # TODO softmax
+            
             qk_value_dot = Tensor.mat_mul(query_key_dot, v[h])
 
             return qk_value_dot

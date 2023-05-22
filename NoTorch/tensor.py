@@ -213,16 +213,6 @@ class Tensor:
         return out
 
     @staticmethod
-    def dot(a, b):
-        """
-        Vector dot product
-        """
-        a = Tensor._validate_input(a)
-        b = Tensor._validate_input(b)
-
-        return Tensor.sum1d(a*b)
-
-    @staticmethod
     def mat_mul(mat_a, mat_b):
         """
         Matrix multiplication
@@ -257,17 +247,14 @@ class Tensor:
         return out
 
     @staticmethod
-    def sum1d(tensor_in):
+    def sum(tensor_in: Tensor, axis: int = 0):
         """
-        Sum across all values in a 1d tensor in 1 operation,
-        mitigating graph blowup
+        Sum across tensor axis
         """
-        assert len(tensor_in.data.shape) == 1, "Input tensor must be 1d"
-
-        out = Tensor(np.longdouble([np.sum(tensor_in.data)]), (tensor_in,), _op="sum1d")
+        out = Tensor(np.sum(tensor_in.data, axis=axis), (tensor_in,), _op="sum")
 
         def _backward():
-            tensor_in.grad += np.full_like(tensor_in.grad, out.grad)
+            tensor_in.grad += np.expand_dims(out.grad, axis=axis)
 
         out._backward = _backward
 
@@ -308,23 +295,26 @@ class Tensor:
         return out
 
     @staticmethod
-    def cat1d(tensors: List[Tensor]):
+    def repeat(tensor: Tensor, repeats: int, axis: int = 0):
         """
-        Concatenate a list of 1 dimensional Tensors along first axis
+        Repeat a Tensor along an axis
         """
-        out = Tensor(
-            np.concatenate([t.data for t in tensors], axis=0),
-            tuple(tensors),
-            _op="cat1d",
-        )
+        out = Tensor(np.repeat(tensor.data, repeats, axis=axis), (tensor,), _op="repeat")
 
         def _backward():
-            for i in range(len(tensors)):
-                tensors[i].grad += out.grad[i]
+            tensor.grad += np.sum(out.grad, axis=axis)
 
         out._backward = _backward
 
         return out
+
+    @staticmethod
+    def cat(tensors: List[Tensor], axis: int = 0):
+        """
+        TODO:
+        Concatenate a list of Tensors along an axis
+        """
+        ...
 
     @staticmethod
     def _validate_init_input(input):
