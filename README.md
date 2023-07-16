@@ -8,7 +8,7 @@ https://github.com/karpathy/micrograd
 
 FEATURES:
 
-- A matrix valued autograd engine, allowing for 24 (and counting) differentiable matrix operations:
+- A matrix valued autograd engine, allowing for 24 (and counting) differentiable matrix operations
 
 - Neural Networks
 
