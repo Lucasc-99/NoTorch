@@ -1,6 +1,6 @@
 import time
 from micrograd.nn import MLP as microMLP
-import NoTorch
+from NoTorch.nn import MLP as no_torch_MLP
 import torch
 import numpy as np
 
@@ -26,7 +26,7 @@ Run multiple times for most accurate results
 micrograd_model = microMLP(
     IN_SIZE, [HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN, 1]
 )
-no_torch_model = NoTorch.nn.MLP(
+no_torch_model = no_torch_MLP(
     in_features=IN_SIZE,
     out_features=1,
     hidden_sizes=[HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN, HIDDEN],

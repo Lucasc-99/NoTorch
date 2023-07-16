@@ -33,7 +33,7 @@ class Tensor:
 
     def __add__(self, other):
         """
-        Addition operation
+        Addition
         """
 
         other: Tensor = Tensor._validate_input(other)
@@ -50,7 +50,7 @@ class Tensor:
 
     def __mul__(self, other):
         """
-        Multiplication operation
+        Multiplication
         """
 
         other: Tensor = Tensor._validate_input(other)
@@ -67,7 +67,7 @@ class Tensor:
 
     def __pow__(self, other):
         """
-        Exponentiation operation
+        Exponentiation
         """
         other: Tensor = Tensor._validate_input(other)
 
@@ -77,18 +77,18 @@ class Tensor:
 
         def _backward():
             self.grad += (other.data * self.data ** (other.data - 1)) * out.grad
-            other.grad += (self.data ** other.data) * np.log(self.data)
 
         out._backward = _backward
 
         return out
 
-    def __rpow__(self, other):
-        other: Tensor = Tensor._validate_input(other)
-
-        return other**self
+    def __rpow__(self): 
+        raise NotImplementedError("rpow not implemented")
 
     def log(self):
+        """
+        Logarithm
+        """
         out = Tensor(np.log(self.data), (self,), _op="log")
 
         def _backward():
@@ -99,6 +99,9 @@ class Tensor:
         return out
 
     def transpose(self):
+        """
+        Matrix Transpose
+        """
         out = Tensor(self.data.T, (self,), _op="transpose")
 
         def _backward():
@@ -123,7 +126,7 @@ class Tensor:
 
     def exp(self):
         """
-        e^x operation
+        e^X
         """
         out = Tensor(np.exp(self.data), (self,), _op="exp")
 
@@ -146,7 +149,7 @@ class Tensor:
     def __eq__(self, other):
         return self.data == Tensor._validate_input(other).data
 
-    def __neg__(self):  # -self
+    def __neg__(self):
         return self * -1
 
     def __radd__(self, other):
@@ -181,9 +184,7 @@ class Tensor:
         topological_sort(self)
 
         self.grad = np.ones_like(self.grad)
-
         for v in reversed(nodes):
-            print(v._op)
             v._backward()
 
     def __repr__(self):
@@ -294,27 +295,6 @@ class Tensor:
 
         return out
 
-    @staticmethod
-    def repeat(tensor: Tensor, repeats: int, axis: int = 0):
-        """
-        Repeat a Tensor along an axis
-        """
-        out = Tensor(np.repeat(tensor.data, repeats, axis=axis), (tensor,), _op="repeat")
-
-        def _backward():
-            tensor.grad += np.sum(out.grad, axis=axis)
-
-        out._backward = _backward
-
-        return out
-
-    @staticmethod
-    def cat(tensors: List[Tensor], axis: int = 0):
-        """
-        TODO:
-        Concatenate a list of Tensors along an axis
-        """
-        ...
 
     @staticmethod
     def _validate_init_input(input):

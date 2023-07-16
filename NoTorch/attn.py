@@ -3,7 +3,7 @@ Attention for Transformers
 """
 
 from typing import List, Union
-from NoTorch.nn import Module
+from NoTorch.nn import Module, MLP
 from NoTorch.tensor import Tensor
 import numpy as np
 import math
@@ -40,7 +40,10 @@ class MultiHeadAttention(Module):
             """
             query_key_dot = Tensor.one_way_grad_mul(Tensor.mat_mul(q[h], k[h].transpose()), math.sqrt(self.input_dim)**-1)
             qk_e = query_key_dot.exp()
-            qk_e /= Tensor.repeat(Tensor.sum(query_key_dot).exp(), qk_e.shape[0])
+
+            softmax_denom = Tensor.sum(query_key_dot).exp()
+            qk_e /= Tensor.stack([softmax_denom for _ in range(qk_e.data.shape[0])])
+            
             return Tensor.mat_mul(qk_e, v[h])
             
 
@@ -50,30 +53,20 @@ class MultiHeadAttention(Module):
         return self.w_q + self.w_k + self.w_v
 
 
-# class TransformerLayer(Module):
-#     """
-#     Linear layer stacked on Multihead attention
-#     """
+class TransformerLayer(Module):
+    """
+    Linear layer stacked on Multihead attention
+    """
 
-#     def __init__(self, input_dim: int, output_dim: int, heads: int):
-#         self.input_dim = input_dim
-#         self.heads = heads
-#         self.attn = MultiHeadAttention(input_dim, heads)
-#         self.linear = MLP(input_dim * heads, output_dim, hidden_sizes=[16, 16])
+    def __init__(self, input_dim: int, output_dim: int, heads: int):
+        self.input_dim = input_dim
+        self.heads = heads
+        self.attn = MultiHeadAttention(input_dim, heads)
+        self.linear = MLP(input_dim * heads, output_dim, hidden_sizes=[16, 16])
 
-#     def __call__(self, x: List[Tensor]) -> List[Tensor]:
-#         return [self.linear(token) for token in self.attn(x)]
+    def __call__(self, x: List[Tensor]) -> List[Tensor]:
+        return [self.linear(token) for token in self.attn(x)]
 
-#     def parameters(self):
-#         return self.attn.parameters() + self.linear.parameters()
-
-# c = MultiHeadAttention(3, 1)
-# x = [Tensor(np.random.randn(3)) for _ in range(5)]
-# y = c(x)
-# print(x)
-
-# print('\n')
-
-# print(y)
-# y[0].backward()
+    def parameters(self):
+        return self.attn.parameters() + self.linear.parameters()
 
