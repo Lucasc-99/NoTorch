@@ -21,12 +21,6 @@ IN PROGRESS:
 - GPU support via CuPy
 
 
-<h1>Implementation Details</h1>
-
-Coming soon
-
-
-
 <br>
 <h1>How to Use</h1>
 Install poetry: https://python-poetry.org/docs/#installation
