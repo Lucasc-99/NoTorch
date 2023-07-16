@@ -1,6 +1,6 @@
 <h1>NoTorch</h1>
 
-A 'from scratch' implementation of a deep learning library (no pytorch/tensorflow) built only on NumPy.
+A 'from scratch' implementation of a deep learning library (no pytorch/tensorflow) built only on NumPy. 
 
 This is a learning project heavily inspired by and based on Andrej Karpathy's micrograd:
 https://github.com/karpathy/micrograd
@@ -8,12 +8,11 @@ https://github.com/karpathy/micrograd
 
 FEATURES:
 
-- A matrix valued autograd engine, allowing for differentiable matrix operations:
-    - element-wise: +, -, *, /, ^, log, exp, relu, sigmoid
-    - matrix multiplication (used for efficient forward passes)
-    - summation and concatenation across a single dimension
+- A matrix valued autograd engine, allowing for 24 (and counting) differentiable matrix operations:
 
-- A neural network library allowing users to build fully customizable neural networks, from basic multi-layer perceptrons to modern Transformers
+- Neural Networks
+
+- Transformers
 
 - Extremely fast performance, speeds similar to PyTorch. Orders of magnitude faster than micrograd (see speed_test.py)
 
