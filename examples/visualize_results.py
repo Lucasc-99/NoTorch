@@ -36,7 +36,7 @@ grouped = df.groupby('input_size').agg({
 }).reset_index()
 
 plt.figure(figsize=(12, 8))
-plt.title('Speed Comparison for 8-layer MLP', fontsize=16)
+plt.title('Forward/Backward pass time for 8-layer MLP', fontsize=16)
 plt.xlabel('Input Vector Size (number of 32 bit floats), Hidden Size = 2 * input size', fontsize=14)
 plt.ylabel('Time (seconds, log scale)', fontsize=14)
 
