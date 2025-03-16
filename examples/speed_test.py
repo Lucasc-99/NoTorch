@@ -36,7 +36,7 @@ for insize, hidden in zip(IN_SIZE, HIDDEN):
     )
     pytorch_model = torch.nn.Sequential(*layers)
 
-    x = [np.float32(np.random.random_sample()) for _ in range(insize)]
+    x = [np.random.random_sample() for _ in range(insize)]
 
     """
     Micrograd

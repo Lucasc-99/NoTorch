@@ -37,7 +37,7 @@ grouped = df.groupby('input_size').agg({
 
 plt.figure(figsize=(12, 8))
 plt.title('Framework Speed Comparison, 4 trial average', fontsize=16)
-plt.xlabel('Input Vector Size (number of 64 bit floats)', fontsize=14)
+plt.xlabel('Input Vector Size (number of 32 bit floats)', fontsize=14)
 plt.ylabel('Time (seconds, log scale)', fontsize=14)
 
 sns.lineplot(x='input_size', y='micrograd_time', data=grouped, label='micrograd', color='blue', marker='o')
