@@ -5,11 +5,13 @@ description = "A from-scratch deep learning library implementation (no Pytorch) 
 authors = ["Lucas Cecchi"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-numpy = "^1.22.3"
-sklearn = "^0.0"
-torch = "^1.11.0"
+python = "^3.10"
+torch = "^2.4.0"
+numpy = "^2.1.1"
 micrograd = "^0.1.0"
+pandas = "^2.2.3"
+matplotlib = "^3.10.1"
+seaborn = "^0.13.2"
 
 [tool.poetry.dev-dependencies]
 

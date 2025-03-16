@@ -4,6 +4,7 @@ import numpy as np
 import itertools
 from functools import partial
 
+
 class Tensor:
     """
     Matrix with differentiable operations
@@ -71,9 +72,7 @@ class Tensor:
         """
         other: Tensor = Tensor._validate_input(other)
 
-        out = Tensor(
-            self.data**other.data, (self, other), _op="pow"
-        )
+        out = Tensor(self.data**other.data, (self, other), _op="pow")
 
         def _backward():
             self.grad += (other.data * self.data ** (other.data - 1)) * out.grad
@@ -82,7 +81,7 @@ class Tensor:
 
         return out
 
-    def __rpow__(self): 
+    def __rpow__(self):
         raise NotImplementedError("rpow not implemented")
 
     def log(self):
@@ -109,7 +108,7 @@ class Tensor:
 
         out._backward = _backward
 
-        return out        
+        return out
 
     def relu(self):
         """
@@ -132,7 +131,7 @@ class Tensor:
 
         def _backward():
             self.grad += np.exp(self.data)
-        
+
         out._backward = _backward
 
         return out
@@ -226,7 +225,7 @@ class Tensor:
         def _backward():
             mat_a.grad += np.matmul(out.grad, mat_b.data.T)
             mat_b.grad += np.matmul(mat_a.data.T, out.grad)
-        
+
         out._backward = _backward
         return out
 
@@ -285,16 +284,24 @@ class Tensor:
         """
         Unstack a Tensor along first axis
         """
-        out = [Tensor(t, (tensor,), _op="unstack") for t in np.split(tensor.data, tensor.data.shape[0], axis=0)]
+        out = [
+            Tensor(t, (tensor,), _op="unstack")
+            for t in np.split(tensor.data, tensor.data.shape[0], axis=0)
+        ]
 
         def _backward(idx):
-            tensor.grad += np.concatenate([np.zeros_like(t.data) if i != idx else t.grad for i, t in enumerate(out)], axis=0)
+            tensor.grad += np.concatenate(
+                [
+                    np.zeros_like(t.data) if i != idx else t.grad
+                    for i, t in enumerate(out)
+                ],
+                axis=0,
+            )
 
         for i in range(len(out)):
             out[i]._backward = partial(_backward, i)
 
         return out
-
 
     @staticmethod
     def _validate_init_input(input):
@@ -316,7 +323,6 @@ class Tensor:
                 np.float16,
                 np.float32,
                 np.float64,
-                np.float128,
                 np.single,
                 np.double,
             ), "dtype must be float"

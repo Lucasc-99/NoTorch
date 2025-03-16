@@ -3,8 +3,8 @@ Attention for Transformers
 """
 
 from typing import List, Union
-from NoTorch.nn import Module, MLP
-from NoTorch.tensor import Tensor
+from notorch.nn import Module, MLP
+from notorch.tensor import Tensor
 import numpy as np
 import math
 
@@ -16,7 +16,9 @@ class MultiHeadAttention(Module):
 
     def __init__(self, input_dim: int, heads: int):
         def _w_init() -> Tensor:
-            return Tensor(np.random.randn(input_dim, input_dim) * math.sqrt(2.0 / input_dim))
+            return Tensor(
+                np.random.randn(input_dim, input_dim) * math.sqrt(2.0 / input_dim)
+            )
 
         self.w_q = [_w_init() for _ in range(heads)]
         self.w_k = [_w_init() for _ in range(heads)]
@@ -31,21 +33,16 @@ class MultiHeadAttention(Module):
         k = [Tensor.mat_mul(tokens, self.w_k[h]) for h in range(self.heads)]
         v = [Tensor.mat_mul(tokens, self.w_v[h]) for h in range(self.heads)]
 
-        
         def scaled_dot_prod(h: int) -> Tensor:
-            """
-            Compute softmax(qk'/sqrt(d_k))v for head h
-            # TODO masking
-            # TODO linear bias positional encoding
-            """
-            query_key_dot = Tensor.one_way_grad_mul(Tensor.mat_mul(q[h], k[h].transpose()), math.sqrt(self.input_dim)**-1)
+            query_key_dot = Tensor.one_way_grad_mul(
+                Tensor.mat_mul(q[h], k[h].transpose()), math.sqrt(self.input_dim) ** -1
+            )
             qk_e = query_key_dot.exp()
 
             softmax_denom = Tensor.sum(query_key_dot).exp()
             qk_e /= Tensor.stack([softmax_denom for _ in range(qk_e.data.shape[0])])
-            
+
             return Tensor.mat_mul(qk_e, v[h])
-            
 
         return [scaled_dot_prod(h) for h in range(self.heads)]
 
@@ -69,4 +66,3 @@ class TransformerLayer(Module):
 
     def parameters(self):
         return self.attn.parameters() + self.linear.parameters()
-

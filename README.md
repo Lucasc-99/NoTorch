@@ -16,9 +16,12 @@ FEATURES:
 
 - Extremely fast performance, speeds similar to PyTorch. Orders of magnitude faster than micrograd (see speed_test.py)
 
-IN PROGRESS:
 
-- GPU support via CuPy
+SPEED TEST:
+
+I compared performance for a single forward and backward pass with an 8 layer network while varying the input size:
+
+![Alt text](imgs/results.png)
 
 <br>
 <h1>How to Use</h1>
