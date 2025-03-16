@@ -19,7 +19,6 @@ For each run, each library executes a forward and backward pass on the same rand
 """
 )
 
-
 results = []
 for insize, hidden in zip(IN_SIZE, HIDDEN):
 
