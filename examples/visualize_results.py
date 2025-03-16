@@ -49,7 +49,7 @@ plt.grid(True, which="both", ls="--", alpha=0.7)
 plt.legend(fontsize=12)
 plt.tight_layout()
 
-plt.savefig('results/results.png', dpi=300)
+plt.savefig('imgs/results.png', dpi=300)
 print("Plot saved as 'speed_comparison_log_avg.png'")
 
 plt.show()
