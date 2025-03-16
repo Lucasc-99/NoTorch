@@ -50,6 +50,6 @@ plt.legend(fontsize=12)
 plt.tight_layout()
 
 plt.savefig('imgs/results.png', dpi=300)
-print("Plot saved as 'speed_comparison_log_avg.png'")
+print("Plot saved as 'results.png'")
 
 plt.show()
